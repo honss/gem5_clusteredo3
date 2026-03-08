@@ -580,6 +580,9 @@ for variant_path in variant_paths:
 
     env.SConsignFile(os.path.join(gem5_build, 'sconsign'))
 
+    zlib_prefix = '/m/local1/aidanlevy03/zlib'
+    env.Prepend(CPPPATH=[zlib_prefix + '/include'])
+    env.Prepend(LIBPATH=[zlib_prefix + '/lib'])
     # Set up default C++ compiler flags
     if env['GCC'] or env['CLANG']:
         # As gcc and clang share many flags, do the common parts here
@@ -815,7 +818,6 @@ for variant_path in variant_paths:
     # Bare minimum environment that only includes python
     gem5py_env.Append(CCFLAGS=['${GEM5PY_CCFLAGS_EXTRA}'])
     gem5py_env.Append(LINKFLAGS=['${GEM5PY_LINKFLAGS_EXTRA}'])
-
     if GetOption('gprof') and GetOption('pprof'):
         error('Only one type of profiling should be enabled at a time')
     if GetOption('gprof'):
