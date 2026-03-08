@@ -48,9 +48,11 @@ if env['CONF']['BUILD_ISA']:
     SimObject('BaseO3CPU.py', sim_objects=['BaseO3CPU'])
     SimObject('IQUnit.py', sim_objects=['IQUnit'])
     SimObject('SMT.py',
-        enums=['SMTFetchPolicy', 'SMTQueuePolicy', 'CommitPolicy'])
+        enums=['SMTFetchPolicy', 'SMTQueuePolicy', 'CommitPolicy',
+               'ClusterSteerPolicy'])
 
     Source('bac.cc')
+    Source('cluster_assign.cc')
     Source('commit.cc')
     Source('cpu.cc')
     Source('decode.cc')
@@ -74,6 +76,7 @@ if env['CONF']['BUILD_ISA']:
     Source('thread_state.cc')
 
     DebugFlag('BAC')
+    DebugFlag('ClusterSteer', 'O3 cluster steering: dest/src regs and clusterMask')
     DebugFlag('CommitRate')
     DebugFlag('FTQ')
     DebugFlag('IEW')

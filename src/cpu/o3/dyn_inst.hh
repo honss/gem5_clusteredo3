@@ -315,6 +315,13 @@ class DynInst : public ExecContext, public RefCounted
         replaceBits(byte, idx % 8, ready ? 1 : 0);
     }
 
+    /**
+     * Cluster assignment for multicluster O3 (2 clusters).
+     * Bit 0 = in cluster 0, bit 1 = in cluster 1.
+     * 1 = cluster 0 only, 2 = cluster 1 only, 3 = both (dual-distributed).
+     */
+    uint8_t _clusterMask = 0;
+
     /** The thread this instruction is from. */
     ThreadID threadNumber = 0;
 
@@ -480,6 +487,14 @@ class DynInst : public ExecContext, public RefCounted
     {
         renamedSrcIdx(idx, renamed_src);
     }
+
+    /** Cluster assignment (2 clusters). See _clusterMask. */
+    void setClusterMask(uint8_t mask) { _clusterMask = mask; }
+    uint8_t clusterMask() const { return _clusterMask; }
+    /** True if this instruction is dispatched to cluster c (0 or 1). */
+    bool inCluster(int c) const { return (_clusterMask & (1u << c)) != 0; }
+    /** True if instruction is dual-distributed (both clusters). */
+    bool isDualDistributed() const { return _clusterMask == 3; }
 
     /** Dumps out contents of this BaseDynInst. */
     void dump();

@@ -185,8 +185,15 @@ if args.smt and args.num_cpus > 1:
 
 np = args.num_cpus
 mp0_path = multiprocesses[0].executable
+
+# O3 multicluster: pass cluster steering params when using O3 CPU
+cpu_params = {}
+if ObjectList.is_o3_cpu(CPUClass):
+    cpu_params["clusterSteerPolicy"] = args.cluster_steer_policy
+    cpu_params["clusterSteerGroupSize"] = args.cluster_steer_group_size
+
 system = System(
-    cpu=[CPUClass(cpu_id=i) for i in range(np)],
+    cpu=[CPUClass(cpu_id=i, **cpu_params) for i in range(np)],
     mem_mode=test_mem_mode,
     mem_ranges=[AddrRange(args.mem_size)],
     cache_line_size=args.cacheline_size,

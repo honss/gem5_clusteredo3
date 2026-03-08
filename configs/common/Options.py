@@ -767,6 +767,21 @@ def addSEOptions(parser):
         help="Wait for remote GDB to connect.",
     )
 
+    # O3 multicluster: cluster steering (only applies when using O3 CPU)
+    parser.add_argument(
+        "--cluster-steer-policy",
+        default="RegBased",
+        choices=["RegBased", "Alternating"],
+        help="O3 cluster steering: RegBased (even/odd arch regs) or "
+        "Alternating (groups of X instructions)",
+    )
+    parser.add_argument(
+        "--cluster-steer-group-size",
+        type=int,
+        default=4,
+        help="For Alternating policy: instructions per cluster before switching",
+    )
+
 
 def addFSOptions(parser):
     from common.FSConfig import os_types

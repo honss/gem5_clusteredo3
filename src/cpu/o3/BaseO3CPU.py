@@ -240,6 +240,16 @@ class BaseO3CPU(BaseCPU):
         1, "Max number of taken predictions per cycle"
     )
 
+    # Multicluster O3: cluster steering policy
+    clusterSteerPolicy = Param.ClusterSteerPolicy(
+        "RegBased",
+        "Cluster steering: RegBased (even/odd arch regs) or Alternating (groups of X)",
+    )
+    clusterSteerGroupSize = Param.Unsigned(
+        4,
+        "For Alternating policy: number of instructions per cluster before switching",
+    )
+
 
 add_citation(
     BaseO3CPU,

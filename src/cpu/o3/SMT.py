@@ -49,3 +49,8 @@ class SMTQueuePolicy(ScopedEnum):
 
 class CommitPolicy(ScopedEnum):
     vals = ["RoundRobin", "OldestReady"]
+
+
+class ClusterSteerPolicy(ScopedEnum):
+    """Cluster steering policy for multicluster O3."""
+    vals = ["RegBased", "Alternating"]

@@ -49,6 +49,7 @@
 #include "cpu/o3/dyn_inst_ptr.hh"
 #include "cpu/o3/limits.hh"
 #include "cpu/timebuf.hh"
+#include "enums/ClusterSteerPolicy.hh"
 
 namespace gem5
 {
@@ -286,6 +287,12 @@ class Decode
 
     /** Maximum size of the skid buffer. */
     unsigned skidBufferMax;
+
+    /** Cluster steering policy and params. */
+    ClusterSteerPolicy clusterSteerPolicy;
+    unsigned clusterSteerGroupSize;
+    /** Per-thread instruction count for Alternating steering. */
+    unsigned steerCount[MaxThreads];
 
     /** SeqNum of Squashing Branch Delay Instruction (used for MIPS)*/
     Addr bdelayDoneSeqNum[MaxThreads];

@@ -42,11 +42,14 @@
 #include "cpu/o3/decode.hh"
 
 #include "arch/generic/pcstate.hh"
+#include "cpu/o3/cluster_assign.hh"
 #include "base/trace.hh"
 #include "cpu/inst_seq.hh"
 #include "cpu/o3/dyn_inst.hh"
 #include "cpu/o3/limits.hh"
+#include "cpu/reg_class.hh"
 #include "debug/Activity.hh"
+#include "debug/ClusterSteer.hh"
 #include "debug/Decode.hh"
 #include "params/BaseO3CPU.hh"
 #include "sim/full_system.hh"
@@ -89,6 +92,8 @@ Decode::Decode(CPU *_cpu, const BaseO3CPUParams &params)
       fetchToDecodeDelay(params.fetchToDecodeDelay),
       decodeWidth(params.decodeWidth),
       numThreads(params.numThreads),
+      clusterSteerPolicy(params.clusterSteerPolicy),
+      clusterSteerGroupSize(params.clusterSteerGroupSize),
       stats(_cpu)
 {
     if (decodeWidth > MaxWidth)
@@ -104,6 +109,7 @@ Decode::Decode(CPU *_cpu, const BaseO3CPUParams &params)
         bdelayDoneSeqNum[tid] = 0;
         squashInst[tid] = nullptr;
         squashAfterDelaySlot[tid] = 0;
+        steerCount[tid] = 0;
     }
 }
 
@@ -118,6 +124,7 @@ Decode::clearStates(ThreadID tid)
 {
     decodeStatus[tid] = Idle;
     stalls[tid].rename = false;
+    steerCount[tid] = 0;
 
     // Clear out any of this thread's instructions being sent to rename.
     for (int i = -cpu->decodeQueue.getPast();
@@ -688,6 +695,36 @@ Decode::decodeInsts(ThreadID tid)
         // too much for function correctness.
         if (inst->numSrcRegs() == 0) {
             inst->setCanIssue();
+        }
+
+        // Assign instruction to cluster(s) for multicluster O3 (2 clusters).
+        assignClusterToInst(inst, clusterSteerPolicy, clusterSteerGroupSize,
+                           &steerCount[tid]);
+
+        // Cluster steering (ClusterSteer = dedicated flag; Decode = fallback)
+        DPRINTF(ClusterSteer, "[tid:%i] [sn:%lli] %s -> cluster(s): %s "
+                "clusterMask=0x%x\n",
+                tid, inst->seqNum,
+                inst->staticInst->disassemble(inst->pcState().instAddr()).c_str(),
+                inst->isDualDistributed() ? "0,1" :
+                (inst->inCluster(0) ? "0" : "1"),
+                inst->clusterMask());
+        DPRINTF(Decode, "[tid:%i] [sn:%lli] steer: %s -> cluster(s): %s "
+                "clusterMask=0x%x\n",
+                tid, inst->seqNum,
+                inst->staticInst->disassemble(inst->pcState().instAddr()).c_str(),
+                inst->isDualDistributed() ? "0,1" :
+                (inst->inCluster(0) ? "0" : "1"),
+                inst->clusterMask());
+        for (int i = 0; i < inst->numDestRegs(); i++) {
+            const RegId &r = inst->destRegIdx(i);
+            DPRINTF(ClusterSteer, "  dest[%d] %s:%d\n", i, r.className(), r.index());
+            DPRINTF(Decode, "  dest[%d] %s:%d\n", i, r.className(), r.index());
+        }
+        for (int i = 0; i < inst->numSrcRegs(); i++) {
+            const RegId &r = inst->srcRegIdx(i);
+            DPRINTF(ClusterSteer, "  src[%d] %s:%d\n", i, r.className(), r.index());
+            DPRINTF(Decode, "  src[%d] %s:%d\n", i, r.className(), r.index());
         }
 
         // This current instruction is valid, so add it into the decode
