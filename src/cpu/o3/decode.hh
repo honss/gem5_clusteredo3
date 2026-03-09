@@ -291,7 +291,7 @@ class Decode
     /** Cluster steering policy and params. */
     ClusterSteerPolicy clusterSteerPolicy;
     unsigned clusterSteerGroupSize;
-    /** Per-thread instruction count for Alternating steering. */
+    /** Per-thread instruction count for ModN steering. */
     unsigned steerCount[MaxThreads];
 
     /** SeqNum of Squashing Branch Delay Instruction (used for MIPS)*/

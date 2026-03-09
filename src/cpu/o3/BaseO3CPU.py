@@ -243,11 +243,11 @@ class BaseO3CPU(BaseCPU):
     # Multicluster O3: cluster steering policy
     clusterSteerPolicy = Param.ClusterSteerPolicy(
         "RegBased",
-        "Cluster steering: RegBased (even/odd arch regs) or Alternating (groups of X)",
+        "Cluster steering: RegBased (even/odd arch regs) or ModN (groups of X)",
     )
     clusterSteerGroupSize = Param.Unsigned(
         4,
-        "For Alternating policy: number of instructions per cluster before switching",
+        "For ModN policy: number of instructions per cluster before switching",
     )
 
 

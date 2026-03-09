@@ -52,5 +52,8 @@ class CommitPolicy(ScopedEnum):
 
 
 class ClusterSteerPolicy(ScopedEnum):
-    """Cluster steering policy for multicluster O3."""
-    vals = ["RegBased", "Alternating"]
+    """Cluster steering policy for multicluster O3.
+    RegBased: steer by arch reg (even->C0, odd->C1); operands in both -> dual.
+    ModN: round-robin by groupSize (N instructions to C0, next N to C1, ...). Use clusterSteerGroupSize=N.
+    """
+    vals = ["RegBased", "ModN"]

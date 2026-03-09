@@ -44,7 +44,7 @@ namespace o3
  * RegBased: Int/Float arch reg index even -> cluster 0, odd -> cluster 1.
  *   If operands span both clusters, dual-distributed. No operands -> cluster 0.
  *
- * Alternating: Steer in groups of groupSize instructions. First groupSize
+ * ModN: Steer in groups of groupSize instructions. First groupSize
  *   -> cluster 0, next groupSize -> cluster 1, then 0, 1, ...
  *   steerCountPtr is per-thread and incremented here.
  *

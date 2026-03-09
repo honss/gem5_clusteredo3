@@ -43,32 +43,62 @@ assignClusterToInst(const DynInstPtr &inst,
                     unsigned groupSize,
                     unsigned *steerCountPtr)
 {
-    uint8_t mask = 0;
+    // In the Michaud et al. style design we target, each instruction is
+    // executed in a single cluster. ModN steering always picks one cluster
+    // by group index; RegBased also chooses a single cluster based on the
+    // registers it touches.
 
-    if (policy == ClusterSteerPolicy::Alternating && steerCountPtr != nullptr) {
+    int cluster = 0;
+
+    if (policy == ClusterSteerPolicy::ModN && steerCountPtr != nullptr) {
         unsigned idx = (*steerCountPtr)++;
         unsigned group = idx / groupSize;
-        int cluster = group % 2;
-        mask = 1u << cluster;
+        cluster = group % 2;
     } else {
-        // RegBased (or fallback)
-        auto addClusterFromReg = [&mask](const RegId &reg) {
+        // RegBased: try destination int/float regs first, then sources.
+        auto chooseClusterFromReg = [&cluster](const RegId &reg,
+                                               bool &chosen) {
+            if (chosen)
+                return;
             RegClassType type = reg.classValue();
             if (type != IntRegClass && type != FloatRegClass)
                 return;
-            int cluster = reg.index() % 2;
-            mask |= (1u << cluster);
+            cluster = reg.index() % 2;
+            chosen = true;
         };
 
-        for (int i = 0; i < inst->numSrcRegs(); i++)
-            addClusterFromReg(inst->srcRegIdx(i));
-        for (int i = 0; i < inst->numDestRegs(); i++)
-            addClusterFromReg(inst->destRegIdx(i));
+        bool chosen = false;
 
-        if (mask == 0)
-            mask = 1;
+        // Prefer destinations: where the value is written.
+        for (int i = 0; i < inst->numDestRegs(); i++) {
+            chooseClusterFromReg(inst->destRegIdx(i), chosen);
+            if (chosen)
+                break;
+        }
+
+        // Fall back to sources if no suitable destination.
+        if (!chosen) {
+            for (int i = 0; i < inst->numSrcRegs(); i++) {
+                chooseClusterFromReg(inst->srcRegIdx(i), chosen);
+                if (chosen)
+                    break;
+            }
+        }
+
+        // If still nothing (no int/float regs), fall back to ModN-style
+        // steering when possible, otherwise default to cluster 0.
+        if (!chosen) {
+            if (steerCountPtr != nullptr && groupSize != 0) {
+                unsigned idx = (*steerCountPtr)++;
+                unsigned group = idx / groupSize;
+                cluster = group % 2;
+            } else {
+                cluster = 0;
+            }
+        }
     }
 
+    uint8_t mask = static_cast<uint8_t>(1u << cluster);
     inst->setClusterMask(mask);
 }
 

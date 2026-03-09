@@ -771,15 +771,15 @@ def addSEOptions(parser):
     parser.add_argument(
         "--cluster-steer-policy",
         default="RegBased",
-        choices=["RegBased", "Alternating"],
+        choices=["RegBased", "ModN"],
         help="O3 cluster steering: RegBased (even/odd arch regs) or "
-        "Alternating (groups of X instructions)",
+        "ModN (groups of X instructions)",
     )
     parser.add_argument(
         "--cluster-steer-group-size",
         type=int,
         default=4,
-        help="For Alternating policy: instructions per cluster before switching",
+        help="For ModN policy: instructions per cluster before switching",
     )
 
 
