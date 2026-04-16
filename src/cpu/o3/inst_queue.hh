@@ -42,6 +42,7 @@
 #ifndef __CPU_O3_INST_QUEUE_HH__
 #define __CPU_O3_INST_QUEUE_HH__
 
+#include <algorithm>
 #include <list>
 #include <map>
 #include <queue>
@@ -447,10 +448,8 @@ class InstructionQueue
     typedef std::priority_queue<
         DynInstPtr, std::vector<DynInstPtr>, PqCompare> ReadyInstQueue;
 
-    /** List of ready instructions, per op class.  They are separated by op
-     *  class to allow for easy mapping to FUs.
-     */
-    ReadyInstQueue readyInsts[Num_OpClasses];
+    /** List of ready instructions, per cluster and op class (for per-cluster issue). */
+    ReadyInstQueue readyInsts[MaxClusters][Num_OpClasses];
 
     /** List of non-speculative instructions that will be scheduled
      *  once the IQ gets a signal from commit.  While it's redundant to
@@ -470,33 +469,28 @@ class InstructionQueue
         InstSeqNum oldestInst;
     };
 
-    /** List that contains the age order of the oldest instruction of each
-     *  ready queue.  Used to select the oldest instruction available
-     *  among op classes.
-     *  @todo: Might be better to just move these entries around instead
-     *  of creating new ones every time the position changes due to an
-     *  instruction issuing.  Not sure std::list supports this.
-     */
-    std::list<ListOrderEntry> listOrder;
+    /** Age order of oldest inst per ready queue, per cluster. */
+    std::list<ListOrderEntry> listOrder[MaxClusters];
 
     typedef typename std::list<ListOrderEntry>::iterator ListOrderIt;
 
-    /** Tracks if each ready queue is on the age order list. */
-    bool queueOnList[Num_OpClasses];
+    /** Tracks if each ready queue is on the age order list, per cluster. */
+    bool queueOnList[MaxClusters][Num_OpClasses];
 
-    /** Iterators of each ready queue.  Points to their spot in the age order
-     *  list.
-     */
-    ListOrderIt readyIt[Num_OpClasses];
+    /** Iterators of each ready queue in the age order list, per cluster. */
+    ListOrderIt readyIt[MaxClusters][Num_OpClasses];
 
-    /** Add an op class to the age order list. */
-    void addToOrderList(OpClass op_class);
+    /** Number of clusters (1 or 2 from iqs.size()). */
+    unsigned numClusters() const { return std::min(iqs.size(), size_t(MaxClusters)); }
+
+    /** Add an op class to a cluster's age order list. */
+    void addToOrderList(OpClass op_class, int cluster);
 
     /**
      * Called when the oldest instruction has been removed from a ready queue;
      * this places that ready queue into the proper spot in the age order list.
      */
-    void moveToYoungerInst(ListOrderIt age_order_it);
+    void moveToYoungerInst(ListOrderIt age_order_it, int cluster);
 
     DependencyGraph<DynInstPtr> dependGraph;
 
@@ -520,6 +514,15 @@ class InstructionQueue
      *  @todo: Make there be a distinction between the delays within IEW.
      */
     Cycles commitToIEWDelay;
+
+    /** Cross-cluster result delay: wake dependents from other cluster at +N cycles. */
+    Cycles interclusterDelay;
+
+    /** Dependents woken by a producer in another cluster; add to ready at readyTick. */
+    std::list<std::pair<DynInstPtr, Tick>> delayedWakeups;
+
+    /** Process delayedWakeups: add to ready list any whose ready tick has passed. */
+    void processDelayedWakeups();
 
     /** The sequence number of the squashed instruction. */
     InstSeqNum squashedSeqNum[MaxThreads];

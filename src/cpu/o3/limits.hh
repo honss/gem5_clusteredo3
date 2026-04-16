@@ -46,8 +46,9 @@ namespace gem5
 namespace o3
 {
 
-static constexpr int MaxWidth = 16;
+static constexpr int MaxWidth = 32;
 static constexpr int MaxThreads = 4;
+static constexpr int MaxClusters = 2;
 
 } // namespace o3
 } // namespace gem5

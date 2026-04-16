@@ -120,16 +120,34 @@ class SimpleFreeList
  * "FreeList" is used in a typedef within the CPU Policy, and therefore no
  * class can be named simply "FreeList".
  * @todo: Give a better name to the base FP dependency.
+ *
+ * For clustered O3 (Michaud et al.): when numClusters==2, INT and FP
+ * physical registers are partitioned by index (0..K-1 -> cluster 0,
+ * K..2K-1 -> cluster 1).  Allocations and frees use the appropriate
+ * per-cluster list.
  */
 class UnifiedFreeList
 {
+  public:
+    static constexpr unsigned MaxClusters = 2;
+
   private:
 
     /** The object name, for DPRINTF.  We have to declare this
      *  explicitly because Scoreboard is not a SimObject. */
     const std::string _name;
 
-    std::array<SimpleFreeList, CCRegClass + 1> freeLists;
+    /** Per-class, per-cluster free lists.  When numClusters==1 only [0] is used. */
+    std::array<std::array<SimpleFreeList, MaxClusters>, CCRegClass + 1> freeListsByCluster;
+
+    /** Number of clusters (1 = no partition, 2 = INT/FP partitioned). */
+    unsigned numClusters;
+
+    /**
+     * For INT/FP, index < partitionBoundary[type] => cluster 0, else cluster 1.
+     * Used by addReg() to return freed regs to the correct list.
+     */
+    std::array<unsigned, CCRegClass + 1> partitionBoundary;
 
     /**
      * The register file object is used only to distinguish integer
@@ -138,11 +156,19 @@ class UnifiedFreeList
     PhysRegFile *regFile;
 
     /*
-     * We give UnifiedRenameMap internal access so it can get at the
-     * internal per-class free lists and associate those with its
-     * per-class rename maps. See UnifiedRenameMap::init().
+     * We give UnifiedRenameMap internal access so it can pass this
+     * free list to per-class rename maps. See UnifiedRenameMap::init().
      */
     friend class UnifiedRenameMap;
+
+    /** Resolve cluster for getReg when not partitioning (always 0). */
+    int
+    _cluster(RegClassType type, int cluster) const
+    {
+        if (numClusters < 2 || (type != IntRegClass && type != FloatRegClass))
+            return 0;
+        return cluster;
+    }
 
   public:
     /** Constructs a free list.
@@ -158,8 +184,35 @@ class UnifiedFreeList
     /** Gives the name of the freelist. */
     std::string name() const { return _name; };
 
-    /** Gets a free register of type type. */
-    PhysRegIdPtr getReg(RegClassType type) { return freeLists[type].getReg(); }
+    /** Enable per-cluster partition (2 = INT/FP split 0..K-1 / K..2K-1). */
+    void setNumClusters(unsigned n) { numClusters = n; }
+
+    /** Set partition boundary for a register class (index < boundary => cluster 0). */
+    void setPartitionBoundary(RegClassType type, unsigned boundary) {
+        partitionBoundary[type] = boundary;
+    }
+
+    /** Add registers to a specific cluster's pool for the given type. */
+    template<class InputIt>
+    void
+    addRegsToCluster(RegClassType type, int cluster, InputIt first, InputIt last)
+    {
+        assert(cluster >= 0 && (unsigned)cluster < MaxClusters);
+        auto &list = freeListsByCluster[type][cluster];
+        std::for_each(first, last, [&list](typename InputIt::value_type& reg) {
+            list.addReg(&reg);
+        });
+    }
+
+    /** Gets a free register of type type (uses cluster 0 when not partitioned). */
+    PhysRegIdPtr getReg(RegClassType type) { return getReg(type, 0); }
+
+    /** Gets a free register of type type from the given cluster's pool. */
+    PhysRegIdPtr getReg(RegClassType type, int cluster)
+    {
+        int c = _cluster(type, cluster);
+        return freeListsByCluster[type][c].getReg();
+    }
 
     /** Adds a register back to the free list. */
     template<class InputIt>
@@ -169,25 +222,48 @@ class UnifiedFreeList
         std::for_each(first, last, [this](auto &reg) { addReg(&reg); });
     }
 
-    /** Adds a register back to the free list. */
+    /** Adds a register back to the correct per-cluster free list. */
     void
     addReg(PhysRegIdPtr freed_reg)
     {
-        freeLists[freed_reg->classValue()].addReg(freed_reg);
+        RegClassType type = freed_reg->classValue();
+        int c = 0;
+        if (numClusters >= 2 && (type == IntRegClass || type == FloatRegClass)) {
+            c = (freed_reg->index() < partitionBoundary[type]) ? 0 : 1;
+        }
+        freeListsByCluster[type][c].addReg(freed_reg);
     }
 
     /** Checks if there are any free registers of type type. */
     bool
     hasFreeRegs(RegClassType type) const
     {
-        return freeLists[type].hasFreeRegs();
+        return hasFreeRegs(type, 0);
+    }
+
+    /** Checks if there are free registers of type type in cluster. */
+    bool
+    hasFreeRegs(RegClassType type, int cluster) const
+    {
+        int c = (numClusters >= 2 && (type == IntRegClass || type == FloatRegClass))
+                ? cluster : 0;
+        return freeListsByCluster[type][c].hasFreeRegs();
     }
 
     /** Returns the number of free registers of type type. */
     unsigned
     numFreeRegs(RegClassType type) const
     {
-        return freeLists[type].numFreeRegs();
+        return numFreeRegs(type, 0);
+    }
+
+    /** Returns the number of free registers of type type in cluster. */
+    unsigned
+    numFreeRegs(RegClassType type, int cluster) const
+    {
+        int c = (numClusters >= 2 && (type == IntRegClass || type == FloatRegClass))
+                ? cluster : 0;
+        return freeListsByCluster[type][c].numFreeRegs();
     }
 };
 

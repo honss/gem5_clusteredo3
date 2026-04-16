@@ -1,0 +1,23 @@
+CC ?= gcc
+# IMPORTANT: gem5's x86 SE mode doesn't necessarily implement all host ISA
+# extensions. Avoid VEX/AVX/etc so the binary runs under gem5.
+CFLAGS ?= -O3 -ffast-math -funroll-loops -m64 -msse2 -mfpmath=sse -mno-avx -mno-avx2 -mno-fma
+LDFLAGS ?=
+
+SRC := mini_lbm.c
+OUTDIR := ../bin/x86
+OUT := $(OUTDIR)/mini_lbm
+
+.PHONY: all clean
+
+all: $(OUT)
+
+$(OUTDIR):
+	mkdir -p $(OUTDIR)
+
+$(OUT): $(SRC) | $(OUTDIR)
+	$(CC) $(CFLAGS) -o $@ $< $(LDFLAGS)
+
+clean:
+	rm -f $(OUT)
+

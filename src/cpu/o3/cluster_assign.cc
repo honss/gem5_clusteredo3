@@ -30,6 +30,7 @@
 
 #include "cpu/o3/dyn_inst.hh"
 #include "cpu/reg_class.hh"
+#include "debug/ClusterCheck.hh"
 
 namespace gem5
 {
@@ -100,6 +101,9 @@ assignClusterToInst(const DynInstPtr &inst,
 
     uint8_t mask = static_cast<uint8_t>(1u << cluster);
     inst->setClusterMask(mask);
+
+    DPRINTF(ClusterCheck, "steer uop [sn:%llu] PC %s -> cluster %d\n",
+            inst->seqNum, inst->pcState(), cluster);
 }
 
 } // namespace o3

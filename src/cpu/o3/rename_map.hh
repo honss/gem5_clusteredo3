@@ -80,10 +80,13 @@ class SimpleRenameMap
   private:
 
     /**
-     * Pointer to the free list from which new physical registers
-     * should be allocated in rename()
+     * Unified free list for cluster-aware allocation.  Used for getReg(type, cluster)
+     * and numFreeRegs(type, cluster).
      */
-    SimpleFreeList *freeList;
+    UnifiedFreeList *freeList;
+
+    /** Register class of this map (for getReg/numFreeRegs). */
+    RegClassType regClassType;
 
   public:
 
@@ -94,7 +97,7 @@ class SimpleRenameMap
      * it's awkward to initialize this object via the constructor.
      * Instead, this method is used for initialization.
      */
-    void init(const RegClass &reg_class, SimpleFreeList *_freeList);
+    void init(const RegClass &reg_class, UnifiedFreeList *_freeList);
 
     /**
      * Pair of a physical register and a physical register.  Used to
@@ -108,10 +111,11 @@ class SimpleRenameMap
      * Tell rename map to get a new free physical register to remap
      * the specified architectural register.
      * @param arch_reg The architectural register to remap.
+     * @param cluster Cluster index for partitioned INT/FP (0 or 1); 0 when not partitioned.
      * @return A RenameInfo pair indicating both the new and previous
      * physical registers.
      */
-    RenameInfo rename(const RegId& arch_reg);
+    RenameInfo rename(const RegId& arch_reg, int cluster = 0);
 
     /**
      * Look up the physical register mapped to an architectural register.
@@ -139,7 +143,12 @@ class SimpleRenameMap
     }
 
     /** Return the number of free entries on the associated free list. */
-    unsigned numFreeEntries() const { return freeList->numFreeRegs(); }
+    unsigned numFreeEntries() const { return numFreeEntries(0); }
+
+    /** Return the number of free entries for the given cluster. */
+    unsigned numFreeEntries(int cluster) const {
+        return freeList->numFreeRegs(regClassType, cluster);
+    }
 
     size_t numArchRegs() const { return map.size(); }
 
@@ -199,11 +208,12 @@ class UnifiedRenameMap
      * the specified architectural register. This version takes a
      * RegId and reads the  appropriate class-specific rename table.
      * @param arch_reg The architectural register id to remap.
+     * @param cluster Cluster index for partitioned INT/FP (0 or 1).
      * @return A RenameInfo pair indicating both the new and previous
      * physical registers.
      */
     RenameInfo
-    rename(const RegId& arch_reg)
+    rename(const RegId& arch_reg, int cluster = 0)
     {
         if (!arch_reg.isRenameable()) {
             // misc regs aren't really renamed, just remapped
@@ -218,7 +228,7 @@ class UnifiedRenameMap
             return RenameInfo(phys_reg, phys_reg);
         }
 
-        return renameMaps[arch_reg.classValue()].rename(arch_reg);
+        return renameMaps[arch_reg.classValue()].rename(arch_reg, cluster);
     }
 
     /**
@@ -287,11 +297,18 @@ class UnifiedRenameMap
     unsigned
     numFreeEntries(RegClassType type) const
     {
-        return renameMaps[type].numFreeEntries();
+        return renameMaps[type].numFreeEntries(0);
+    }
+
+    unsigned
+    numFreeEntries(RegClassType type, int cluster) const
+    {
+        return renameMaps[type].numFreeEntries(cluster);
     }
 
     /**
-     * Return whether there are enough registers to serve the request.
+     * Return whether there are enough registers to serve the request
+     * for the instruction's cluster (for partitioned INT/FP).
      */
     bool canRename(DynInstPtr inst) const;
 };

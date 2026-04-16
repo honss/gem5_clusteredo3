@@ -76,6 +76,7 @@ if env['CONF']['BUILD_ISA']:
     Source('thread_state.cc')
 
     DebugFlag('BAC')
+    DebugFlag('ClusterCheck', 'O3 cluster: uop steer, rename arrival, IQ insert')
     DebugFlag('ClusterSteer', 'O3 cluster steering: dest/src regs and clusterMask')
     DebugFlag('CommitRate')
     DebugFlag('FTQ')

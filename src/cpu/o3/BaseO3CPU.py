@@ -240,7 +240,11 @@ class BaseO3CPU(BaseCPU):
         1, "Max number of taken predictions per cycle"
     )
 
-    # Multicluster O3: cluster steering policy
+    # Multicluster O3: cluster steering and per-cluster IQ
+    numClusters = Param.Unsigned(
+        1,
+        "Number of clusters (1 = single IQ; 2 = two IQs, dispatch by clusterMask)",
+    )
     clusterSteerPolicy = Param.ClusterSteerPolicy(
         "RegBased",
         "Cluster steering: RegBased (even/odd arch regs) or ModN (groups of X)",
@@ -248,6 +252,10 @@ class BaseO3CPU(BaseCPU):
     clusterSteerGroupSize = Param.Unsigned(
         4,
         "For ModN policy: number of instructions per cluster before switching",
+    )
+    interclusterDelay = Param.Cycles(
+        3,
+        "Result forwarding delay from other cluster (0 = same-cycle wakeup)",
     )
 
 

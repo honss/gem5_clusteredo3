@@ -10,7 +10,11 @@ Goal: Implement the dual-cluster design from *Revisiting Clustered Microarchitec
 - **Steering policies:**
   - **RegBased** – even/odd arch reg → cluster; operands in both clusters → dual-distributed (mask 3).
   - **ModN** – round-robin by `clusterSteerGroupSize` (first N → C0, next N → C1, …). Use `clusterSteerGroupSize=64` for paper’s Mod-64; N=1 is Mod-1.
-- **Back end:** Still single-cluster: one rename, one unified IQ, one IEW; `clusterMask` is set but not yet used downstream.
+- **Back end (Phases 2–4 done):**
+  - **Rename:** Allocates dest registers from the cluster’s partition (INT/FP 0..K-1 → C0, K..2K-1 → C1).
+  - **IQ:** Per-cluster IQs; dispatch sends each uop to its cluster’s IQ; ready queues and issue are per-cluster (each cluster issues up to `issueWidth/numClusters` from its own ready list).
+  - **Intercluster delay:** Cross-cluster dependents are woken at `curCycle() + interclusterDelay` (param, default 3 cycles); same-cluster wakeup is immediate.
+  - **Debug:** `--debug-flags=ClusterCheck` prints steer → rename arrival → IQ insert per uop and cluster.
 
 ---
 
@@ -111,11 +115,11 @@ Goal: Implement the dual-cluster design from *Revisiting Clustered Microarchitec
 
 ## Suggested next action
 
-1. **Rebuild** if needed: `scons build/X86/gem5.opt`; confirm ModN with groupSize=N works in Decode.
+1. **Config** – Use clustered mode in `o3_spec_config.py`: `clusterSteerPolicy="ModN"`, `clusterSteerGroupSize=64`, two IQs, `interclusterDelay=3`. Trace with `--debug-flags=ClusterCheck`.
 
-2. **Start Phase 2** – Partition the free list by cluster and make rename allocate from the partition implied by `inst->clusterMask()`. That is the foundation for write specialization and per-cluster execution.
+2. **Phase 5 (optional)** – Dependence-based steering: use rename info to steer dependent uops to the same cluster.
 
-3. **Config** – Add a small “clustered” section in `o3_spec_config.py` (or a new `o3_clustered_config.py`) that sets ModN, groupSize=64, and documents that full per-cluster backend is WIP.
+3. **Validation** – Compare IPC with/without clustering and with different `interclusterDelay` values.
 
 ---
 

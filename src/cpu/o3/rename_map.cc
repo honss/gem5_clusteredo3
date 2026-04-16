@@ -53,23 +53,24 @@ namespace gem5
 namespace o3
 {
 
-SimpleRenameMap::SimpleRenameMap() : freeList(NULL)
+SimpleRenameMap::SimpleRenameMap() : freeList(nullptr), regClassType(IntRegClass)
 {
 }
 
 
 void
-SimpleRenameMap::init(const RegClass &reg_class, SimpleFreeList *_freeList)
+SimpleRenameMap::init(const RegClass &reg_class, UnifiedFreeList *_freeList)
 {
-    assert(freeList == NULL);
+    assert(freeList == nullptr);
     assert(map.empty());
 
     map.resize(reg_class.numRegs());
     freeList = _freeList;
+    regClassType = reg_class.type();
 }
 
 SimpleRenameMap::RenameInfo
-SimpleRenameMap::rename(const RegId& arch_reg)
+SimpleRenameMap::rename(const RegId& arch_reg, int cluster)
 {
     PhysRegIdPtr renamed_reg;
     // Record the current physical register that is renamed to the
@@ -88,7 +89,7 @@ SimpleRenameMap::rename(const RegId& arch_reg)
         renamed_reg = prev_reg;
         renamed_reg->decrNumPinnedWrites();
     } else {
-        renamed_reg = freeList->getReg();
+        renamed_reg = freeList->getReg(arch_reg.classValue(), cluster);
         map[arch_reg.index()] = renamed_reg;
         renamed_reg->setNumPinnedWrites(arch_reg.getNumPinnedWrites());
         renamed_reg->setNumPinnedWritesToComplete(
@@ -113,15 +114,17 @@ UnifiedRenameMap::init(const BaseISA::RegClasses &regClasses,
     regFile = _regFile;
 
     for (int i = 0; i < renameMaps.size(); i++)
-        renameMaps[i].init(*regClasses.at(i), &(freeList->freeLists[i]));
+        renameMaps[i].init(*regClasses.at(i), freeList);
 }
 
 bool
 UnifiedRenameMap::canRename(DynInstPtr inst) const
 {
+    // Use instruction's cluster for partitioned INT/FP free-list checks.
+    const int cluster = inst->inCluster(1) ? 1 : 0;
     for (int i = 0; i < renameMaps.size(); i++) {
         if (inst->numDestRegs((RegClassType)i) >
-                renameMaps[i].numFreeEntries()) {
+                renameMaps[i].numFreeEntries(cluster)) {
             return false;
         }
     }

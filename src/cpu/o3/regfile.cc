@@ -147,50 +147,61 @@ PhysRegFile::initFreeList(UnifiedFreeList *freeList)
     // Initialize the free lists.
     int reg_idx = 0;
 
-    // The initial batch of registers are the integer ones
+    // Integer registers: partition 0..K-1 -> cluster 0, K..2K-1 -> cluster 1
+    const unsigned intHalf = numPhysicalIntRegs / 2;
+    freeList->setNumClusters(2);
+    freeList->setPartitionBoundary(IntRegClass, intHalf);
     for (reg_idx = 0; reg_idx < numPhysicalIntRegs; reg_idx++) {
-        assert(intRegIds[reg_idx].index() == reg_idx);
+        assert(intRegIds[reg_idx].index() == (unsigned)reg_idx);
     }
-    freeList->addRegs(intRegIds.begin(), intRegIds.end());
+    freeList->addRegsToCluster(IntRegClass, 0,
+            intRegIds.begin(), intRegIds.begin() + intHalf);
+    freeList->addRegsToCluster(IntRegClass, 1,
+            intRegIds.begin() + intHalf, intRegIds.end());
 
-    // The next batch of the registers are the floating-point physical
-    // registers; put them onto the floating-point free list.
+    // Floating-point registers: same partition
+    const unsigned floatHalf = numPhysicalFloatRegs / 2;
+    freeList->setPartitionBoundary(FloatRegClass, floatHalf);
     for (reg_idx = 0; reg_idx < numPhysicalFloatRegs; reg_idx++) {
-        assert(floatRegIds[reg_idx].index() == reg_idx);
+        assert(floatRegIds[reg_idx].index() == (unsigned)reg_idx);
     }
-    freeList->addRegs(floatRegIds.begin(), floatRegIds.end());
+    freeList->addRegsToCluster(FloatRegClass, 0,
+            floatRegIds.begin(), floatRegIds.begin() + floatHalf);
+    freeList->addRegsToCluster(FloatRegClass, 1,
+            floatRegIds.begin() + floatHalf, floatRegIds.end());
 
     /* The next batch of the registers are the vector physical
      * registers; put them onto the vector free list. */
     for (reg_idx = 0; reg_idx < numPhysicalVecRegs; reg_idx++) {
-        assert(vecRegIds[reg_idx].index() == reg_idx);
+        assert(vecRegIds[reg_idx].index() == (unsigned)reg_idx);
     }
-    freeList->addRegs(vecRegIds.begin(), vecRegIds.end());
+    freeList->addRegsToCluster(VecRegClass, 0, vecRegIds.begin(), vecRegIds.end());
     for (reg_idx = 0; reg_idx < numPhysicalVecElemRegs; reg_idx++) {
-        assert(vecElemIds[reg_idx].index() == reg_idx);
+        assert(vecElemIds[reg_idx].index() == (unsigned)reg_idx);
     }
-    freeList->addRegs(vecElemIds.begin(), vecElemIds.end());
+    freeList->addRegsToCluster(VecElemClass, 0, vecElemIds.begin(), vecElemIds.end());
 
     // The next batch of the registers are the predicate physical
     // registers; put them onto the predicate free list.
     for (reg_idx = 0; reg_idx < numPhysicalVecPredRegs; reg_idx++) {
-        assert(vecPredRegIds[reg_idx].index() == reg_idx);
+        assert(vecPredRegIds[reg_idx].index() == (unsigned)reg_idx);
     }
-    freeList->addRegs(vecPredRegIds.begin(), vecPredRegIds.end());
+    freeList->addRegsToCluster(VecPredRegClass, 0,
+            vecPredRegIds.begin(), vecPredRegIds.end());
 
     /* The next batch of the registers are the matrix physical
      * registers; put them onto the matrix free list. */
     for (reg_idx = 0; reg_idx < numPhysicalMatRegs; reg_idx++) {
-        assert(matRegIds[reg_idx].index() == reg_idx);
+        assert(matRegIds[reg_idx].index() == (unsigned)reg_idx);
     }
-    freeList->addRegs(matRegIds.begin(), matRegIds.end());
+    freeList->addRegsToCluster(MatRegClass, 0, matRegIds.begin(), matRegIds.end());
 
     // The rest of the registers are the condition-code physical
     // registers; put them onto the condition-code free list.
     for (reg_idx = 0; reg_idx < numPhysicalCCRegs; reg_idx++) {
-        assert(ccRegIds[reg_idx].index() == reg_idx);
+        assert(ccRegIds[reg_idx].index() == (unsigned)reg_idx);
     }
-    freeList->addRegs(ccRegIds.begin(), ccRegIds.end());
+    freeList->addRegsToCluster(CCRegClass, 0, ccRegIds.begin(), ccRegIds.end());
 }
 
 } // namespace o3

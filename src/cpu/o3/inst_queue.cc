@@ -48,6 +48,7 @@
 #include "cpu/o3/dyn_inst.hh"
 #include "cpu/o3/fu_pool.hh"
 #include "cpu/o3/limits.hh"
+#include "debug/ClusterCheck.hh"
 #include "debug/IQ.hh"
 #include "enums/OpClass.hh"
 #include "params/BaseO3CPU.hh"
@@ -228,6 +229,7 @@ InstructionQueue::InstructionQueue(CPU *cpu_ptr, IEW *iew_ptr,
       numThreads(params.numThreads),
       totalWidth(params.issueWidth),
       commitToIEWDelay(params.commitToIEWDelay),
+      interclusterDelay(params.interclusterDelay),
       iqStats(cpu, totalWidth),
       iqIOStats(cpu)
 {
@@ -513,14 +515,18 @@ InstructionQueue::resetState()
         squashedSeqNum[tid] = 0;
     }
 
-    for (int i = 0; i < Num_OpClasses; ++i) {
-        while (!readyInsts[i].empty())
-            readyInsts[i].pop();
-        queueOnList[i] = false;
-        readyIt[i] = listOrder.end();
+    unsigned ncl = numClusters();
+    for (unsigned c = 0; c < ncl; c++) {
+        for (int i = 0; i < Num_OpClasses; ++i) {
+            while (!readyInsts[c][i].empty())
+                readyInsts[c][i].pop();
+            queueOnList[c][i] = false;
+            readyIt[c][i] = listOrder[c].end();
+        }
+        listOrder[c].clear();
     }
     nonSpecInsts.clear();
-    listOrder.clear();
+    delayedWakeups.clear();
     deferredMemInsts.clear();
     blockedMemInsts.clear();
     retryMemInsts.clear();
@@ -554,6 +560,7 @@ InstructionQueue::isDrained() const
 {
     bool drained = dependGraph.empty() &&
                    instsToExecute.empty() &&
+                   delayedWakeups.empty() &&
                    wbOutstanding == 0;
     for (ThreadID tid = 0; tid < numThreads; ++tid)
         drained = drained && memDepUnit[tid].isDrained();
@@ -566,6 +573,7 @@ InstructionQueue::drainSanityCheck() const
 {
     assert(dependGraph.empty());
     assert(instsToExecute.empty());
+    assert(delayedWakeups.empty());
     for (ThreadID tid = 0; tid < numThreads; ++tid)
         memDepUnit[tid].drainSanityCheck();
 }
@@ -579,26 +587,45 @@ InstructionQueue::takeOverFrom()
 unsigned
 InstructionQueue::numFreeEntries()
 {
-    unsigned free_entries = 0;
-    for (auto iq : iqs) {
-        free_entries += iq->numFreeEntries();
+    if (iqs.empty())
+        return 0;
+    if (iqs.size() >= 2) {
+        // Clustered: report minimum so we don't overcommit one cluster.
+        unsigned m = iqs[0]->numFreeEntries();
+        for (size_t i = 1; i < iqs.size(); i++) {
+            unsigned n = iqs[i]->numFreeEntries();
+            if (n < m) m = n;
+        }
+        return m;
     }
-    return free_entries;
+    return iqs[0]->numFreeEntries();
 }
 
 unsigned
 InstructionQueue::numFreeEntries(ThreadID tid)
 {
-    unsigned free_entries = 0;
-    for (auto iq : iqs) {
-        free_entries += iq->numFreeEntries(tid);
+    if (iqs.empty())
+        return 0;
+    if (iqs.size() >= 2) {
+        unsigned m = iqs[0]->numFreeEntries(tid);
+        for (size_t i = 1; i < iqs.size(); i++) {
+            unsigned n = iqs[i]->numFreeEntries(tid);
+            if (n < m) m = n;
+        }
+        return m;
     }
-    return free_entries;
+    return iqs[0]->numFreeEntries(tid);
 }
 
 unsigned
 InstructionQueue::numFreeEntries(const DynInstPtr &inst)
 {
+    if (iqs.empty())
+        return 0;
+    if (iqs.size() >= 2) {
+        int cluster = inst->inCluster(1) ? 1 : 0;
+        return iqs[cluster]->numFreeEntries(inst);
+    }
     unsigned free_entries = 0;
     for (auto iq : iqs) {
         free_entries += iq->numFreeEntries(inst);
@@ -639,25 +666,33 @@ InstructionQueue::allFUPools()
 bool
 InstructionQueue::hasReadyInsts()
 {
-    if (!listOrder.empty()) {
-        return true;
-    }
-
-    for (int i = 0; i < Num_OpClasses; ++i) {
-        if (!readyInsts[i].empty()) {
+    unsigned ncl = numClusters();
+    for (unsigned c = 0; c < ncl; c++) {
+        if (!listOrder[c].empty()) {
             return true;
         }
+        for (int i = 0; i < Num_OpClasses; ++i) {
+            if (!readyInsts[c][i].empty()) {
+                return true;
+            }
+        }
     }
-
     return false;
 }
 
 IQUnit *
 InstructionQueue::findIQ(const DynInstPtr &inst)
 {
+    // Clustered O3: when we have 2 IQs, route by instruction's cluster.
+    if (iqs.size() >= 2) {
+        int cluster = inst->inCluster(1) ? 1 : 0;
+        IQUnit *iq = iqs[cluster];
+        if (iq->numFreeEntries(inst) > 0)
+            return iq;
+        return nullptr;
+    }
+    // Single IQ (or SMT): first IQ with room
     for (auto iq : iqs) {
-        // If the IQ can store the selected instruction,
-        // return the IQ as valid
         if (iq->numFreeEntries(inst) > 0) {
             return iq;
         }
@@ -685,6 +720,15 @@ InstructionQueue::insert(const DynInstPtr &new_inst)
 
     auto iq = findIQ(new_inst);
     assert(iq);
+    int iq_cluster = 0;
+    for (size_t i = 0; i < iqs.size(); i++) {
+        if (iqs[i] == iq) {
+            iq_cluster = i;
+            break;
+        }
+    }
+    DPRINTF(ClusterCheck, "IQ insert uop [sn:%llu] PC %s -> IQ cluster %d\n",
+            new_inst->seqNum, new_inst->pcState(), iq_cluster);
     iq->insert(new_inst);
 
     // Look through its source registers (physical regs), and mark any
@@ -729,6 +773,15 @@ InstructionQueue::insertNonSpec(const DynInstPtr &new_inst)
 
     auto iq = findIQ(new_inst);
     assert(iq);
+    int iq_cluster = 0;
+    for (size_t i = 0; i < iqs.size(); i++) {
+        if (iqs[i] == iq) {
+            iq_cluster = i;
+            break;
+        }
+    }
+    DPRINTF(ClusterCheck, "IQ insert uop [sn:%llu] PC %s -> IQ cluster %d\n",
+            new_inst->seqNum, new_inst->pcState(), iq_cluster);
     iq->insert(new_inst);
 
     // Have this instruction set itself as the producer of its destination
@@ -769,39 +822,31 @@ InstructionQueue::getInstToExecute()
 }
 
 void
-InstructionQueue::addToOrderList(OpClass op_class)
+InstructionQueue::addToOrderList(OpClass op_class, int cluster)
 {
-    assert(!readyInsts[op_class].empty());
+    assert(!readyInsts[cluster][op_class].empty());
 
     ListOrderEntry queue_entry;
-
     queue_entry.queueType = op_class;
+    queue_entry.oldestInst = readyInsts[cluster][op_class].top()->seqNum;
 
-    queue_entry.oldestInst = readyInsts[op_class].top()->seqNum;
-
-    ListOrderIt list_it = listOrder.begin();
-    ListOrderIt list_end_it = listOrder.end();
+    ListOrderIt list_it = listOrder[cluster].begin();
+    ListOrderIt list_end_it = listOrder[cluster].end();
 
     while (list_it != list_end_it) {
         if ((*list_it).oldestInst > queue_entry.oldestInst) {
             break;
         }
-
         list_it++;
     }
 
-    readyIt[op_class] = listOrder.insert(list_it, queue_entry);
-    queueOnList[op_class] = true;
+    readyIt[cluster][op_class] = listOrder[cluster].insert(list_it, queue_entry);
+    queueOnList[cluster][op_class] = true;
 }
 
 void
-InstructionQueue::moveToYoungerInst(ListOrderIt list_order_it)
+InstructionQueue::moveToYoungerInst(ListOrderIt list_order_it, int cluster)
 {
-    // Get iterator of next item on the list
-    // Delete the original iterator
-    // Determine if the next item is either the end of the list or younger
-    // than the new instruction.  If so, then add in a new iterator right here.
-    // If not, then move along.
     ListOrderEntry queue_entry;
     OpClass op_class = (*list_order_it).queueType;
     ListOrderIt next_it = list_order_it;
@@ -809,14 +854,14 @@ InstructionQueue::moveToYoungerInst(ListOrderIt list_order_it)
     ++next_it;
 
     queue_entry.queueType = op_class;
-    queue_entry.oldestInst = readyInsts[op_class].top()->seqNum;
+    queue_entry.oldestInst = readyInsts[cluster][op_class].top()->seqNum;
 
-    while (next_it != listOrder.end() &&
+    while (next_it != listOrder[cluster].end() &&
            (*next_it).oldestInst < queue_entry.oldestInst) {
         ++next_it;
     }
 
-    readyIt[op_class] = listOrder.insert(next_it, queue_entry);
+    readyIt[cluster][op_class] = listOrder[cluster].insert(next_it, queue_entry);
 }
 
 void
@@ -846,8 +891,32 @@ InstructionQueue::processFUCompletion(const DynInstPtr &inst, FUPool *fu_pool,
 // lists.  Checking the top item of each list to see if it's squashed
 // wastes time and forces jumps.
 void
+InstructionQueue::processDelayedWakeups()
+{
+    Tick now = curTick();
+    for (auto it = delayedWakeups.begin(); it != delayedWakeups.end(); ) {
+        if (now >= it->second) {
+            // The instruction may have been squashed (or removed from the IQ)
+            // while waiting on a cross-cluster wakeup. In that case, it may
+            // have already been removed from the MemDepUnit hash tables and
+            // must not be woken.
+            if (!it->first->isSquashed() && !it->first->isSquashedInIQ() &&
+                it->first->isInIQ()) {
+                it->first->markSrcRegReady();
+                addIfReady(it->first);
+            }
+            it = delayedWakeups.erase(it);
+        } else {
+            ++it;
+        }
+    }
+}
+
+void
 InstructionQueue::scheduleReadyInsts()
 {
+    processDelayedWakeups();
+
     DPRINTF(IQ, "Attempting to schedule ready instructions from "
             "the IQ.\n");
 
@@ -863,24 +932,22 @@ InstructionQueue::scheduleReadyInsts()
         addReadyMemInst(mem_inst);
     }
 
-    // Have iterator to head of the list
-    // While I haven't exceeded bandwidth or reached the end of the list,
-    // Try to get a FU that can do what this op needs.
-    // If successful, change the oldestInst to the new top of the list, put
-    // the queue in the proper place in the list.
-    // Increment the iterator.
-    // This will avoid trying to schedule a certain op class if there are no
-    // FUs that handle it.
     int total_issued = 0;
-    ListOrderIt order_it = listOrder.begin();
-    ListOrderIt order_end_it = listOrder.end();
+    unsigned ncl = numClusters();
+    unsigned width_per_cluster = (ncl >= 2) ? (totalWidth / ncl) : totalWidth;
 
-    while (total_issued < totalWidth && order_it != order_end_it) {
-        OpClass op_class = (*order_it).queueType;
+    for (unsigned c = 0; c < ncl && total_issued < totalWidth; c++) {
+        int cluster_issued = 0;
+        ListOrderIt order_it = listOrder[c].begin();
+        ListOrderIt order_end_it = listOrder[c].end();
 
-        assert(!readyInsts[op_class].empty());
+        while (cluster_issued < width_per_cluster && total_issued < totalWidth &&
+               order_it != order_end_it) {
+            OpClass op_class = (*order_it).queueType;
 
-        DynInstPtr issuing_inst = readyInsts[op_class].top();
+            assert(!readyInsts[c][op_class].empty());
+
+            DynInstPtr issuing_inst = readyInsts[c][op_class].top();
 
         if (issuing_inst->isFloating()) {
             iqIOStats.fpInstQueueReads++;
@@ -893,16 +960,16 @@ InstructionQueue::scheduleReadyInsts()
         assert(issuing_inst->seqNum == (*order_it).oldestInst);
 
         if (issuing_inst->isSquashed()) {
-            readyInsts[op_class].pop();
+            readyInsts[c][op_class].pop();
 
-            if (!readyInsts[op_class].empty()) {
-                moveToYoungerInst(order_it);
+            if (!readyInsts[c][op_class].empty()) {
+                moveToYoungerInst(order_it, c);
             } else {
-                readyIt[op_class] = listOrder.end();
-                queueOnList[op_class] = false;
+                readyIt[c][op_class] = listOrder[c].end();
+                queueOnList[c][op_class] = false;
             }
 
-            listOrder.erase(order_it++);
+            listOrder[c].erase(order_it++);
 
             ++iqStats.squashedInstsIssued;
 
@@ -977,17 +1044,18 @@ InstructionQueue::scheduleReadyInsts()
                     tid, issuing_inst->pcState(),
                     issuing_inst->seqNum);
 
-            readyInsts[op_class].pop();
+            readyInsts[c][op_class].pop();
 
-            if (!readyInsts[op_class].empty()) {
-                moveToYoungerInst(order_it);
+            if (!readyInsts[c][op_class].empty()) {
+                moveToYoungerInst(order_it, c);
             } else {
-                readyIt[op_class] = listOrder.end();
-                queueOnList[op_class] = false;
+                readyIt[c][op_class] = listOrder[c].end();
+                queueOnList[c][op_class] = false;
             }
 
             issuing_inst->setIssued();
             ++total_issued;
+            ++cluster_issued;
 
 #if TRACING_ON
             issuing_inst->issueTick = curTick() - issuing_inst->fetchTick;
@@ -1004,13 +1072,14 @@ InstructionQueue::scheduleReadyInsts()
                 memDepUnit[tid].issue(issuing_inst);
             }
 
-            listOrder.erase(order_it++);
+            listOrder[c].erase(order_it++);
             iqStats.issuedInstType[tid][op_class]++;
         } else {
             assert(idx == FUPool::NoFreeFU);
             iqStats.statFuBusy[op_class]++;
             iqStats.fuBusy[tid]++;
             ++order_it;
+        }
         }
     }
 
@@ -1146,12 +1215,21 @@ InstructionQueue::wakeDependents(const DynInstPtr &completed_inst)
             DPRINTF(IQ, "Waking up a dependent instruction, [sn:%llu] "
                     "PC %s.\n", dep_inst->seqNum, dep_inst->pcState());
 
-            // Might want to give more information to the instruction
-            // so that it knows which of its source registers is
-            // ready.  However that would mean that the dependency
-            // graph entries would need to hold the src_reg_idx.
-            dep_inst->markSrcRegReady();
+            // Cross-cluster delay: if producer and consumer are in different
+            // clusters, mark the src ready only after interclusterDelay cycles.
+            if (interclusterDelay != Cycles(0) && iqs.size() >= 2) {
+                int prod_cluster = completed_inst->inCluster(1) ? 1 : 0;
+                int cons_cluster = dep_inst->inCluster(1) ? 1 : 0;
+                if (prod_cluster != cons_cluster) {
+                    Tick ready_tick = cpu->clockEdge(interclusterDelay);
+                    delayedWakeups.push_back({dep_inst, ready_tick});
+                    dep_inst = dependGraph.pop(dest_reg->flatIndex());
+                    ++dependents;
+                    continue;
+                }
+            }
 
+            dep_inst->markSrcRegReady();
             addIfReady(dep_inst);
 
             dep_inst = dependGraph.pop(dest_reg->flatIndex());
@@ -1177,21 +1255,20 @@ InstructionQueue::addReadyMemInst(const DynInstPtr &ready_inst)
 
     assert(op_class < Num_OpClasses);
 
-    readyInsts[op_class].push(ready_inst);
+    int c = (numClusters() >= 2 && ready_inst->inCluster(1)) ? 1 : 0;
+    readyInsts[c][op_class].push(ready_inst);
 
-    // Will need to reorder the list if either a queue is not on the list,
-    // or it has an older instruction than last time.
-    if (!queueOnList[op_class]) {
-        addToOrderList(op_class);
-    } else if (readyInsts[op_class].top()->seqNum  <
-               (*readyIt[op_class]).oldestInst) {
-        listOrder.erase(readyIt[op_class]);
-        addToOrderList(op_class);
+    if (!queueOnList[c][op_class]) {
+        addToOrderList(op_class, c);
+    } else if (readyInsts[c][op_class].top()->seqNum <
+               (*readyIt[c][op_class]).oldestInst) {
+        listOrder[c].erase(readyIt[c][op_class]);
+        addToOrderList(op_class, c);
     }
 
     DPRINTF(IQ, "Instruction is ready to issue, putting it onto "
-            "the ready list, PC %s opclass:%i [sn:%llu].\n",
-            ready_inst->pcState(), op_class, ready_inst->seqNum);
+            "the ready list, PC %s opclass:%i [sn:%llu] cluster %d.\n",
+            ready_inst->pcState(), op_class, ready_inst->seqNum, c);
 }
 
 void
@@ -1535,40 +1612,31 @@ InstructionQueue::addToProducers(const DynInstPtr &new_inst)
 void
 InstructionQueue::addIfReady(const DynInstPtr &inst)
 {
-    // If the instruction now has all of its source registers
-    // available, then add it to the list of ready instructions.
     if (inst->readyToIssue()) {
 
-        //Add the instruction to the proper ready list.
         if (inst->isMemRef()) {
-
             DPRINTF(IQ, "Checking if memory instruction can issue.\n");
-
-            // Message to the mem dependence unit that this instruction has
-            // its registers ready.
             memDepUnit[inst->threadNumber].regsReady(inst);
-
             return;
         }
 
         OpClass op_class = inst->opClass();
-
         assert(op_class < Num_OpClasses);
 
+        int c = (numClusters() >= 2 && inst->inCluster(1)) ? 1 : 0;
+
         DPRINTF(IQ, "Instruction is ready to issue, putting it onto "
-                "the ready list, PC %s opclass:%i [sn:%llu].\n",
-                inst->pcState(), op_class, inst->seqNum);
+                "the ready list, PC %s opclass:%i [sn:%llu] cluster %d.\n",
+                inst->pcState(), op_class, inst->seqNum, c);
 
-        readyInsts[op_class].push(inst);
+        readyInsts[c][op_class].push(inst);
 
-        // Will need to reorder the list if either a queue is not on the list,
-        // or it has an older instruction than last time.
-        if (!queueOnList[op_class]) {
-            addToOrderList(op_class);
-        } else if (readyInsts[op_class].top()->seqNum  <
-                   (*readyIt[op_class]).oldestInst) {
-            listOrder.erase(readyIt[op_class]);
-            addToOrderList(op_class);
+        if (!queueOnList[c][op_class]) {
+            addToOrderList(op_class, c);
+        } else if (readyInsts[c][op_class].top()->seqNum <
+                   (*readyIt[c][op_class]).oldestInst) {
+            listOrder[c].erase(readyIt[c][op_class]);
+            addToOrderList(op_class, c);
         }
     }
 }
@@ -1576,10 +1644,12 @@ InstructionQueue::addIfReady(const DynInstPtr &inst)
 void
 InstructionQueue::dumpLists()
 {
-    for (int i = 0; i < Num_OpClasses; ++i) {
-        cprintf("Ready list %i size: %i\n", i, readyInsts[i].size());
-
-        cprintf("\n");
+    unsigned ncl = numClusters();
+    for (unsigned c = 0; c < ncl; c++) {
+        for (int i = 0; i < Num_OpClasses; ++i) {
+            cprintf("Cluster %u Ready list %i size: %zu\n", c, i,
+                    readyInsts[c][i].size());
+        }
     }
 
     cprintf("Non speculative list size: %i\n", nonSpecInsts.size());
@@ -1597,21 +1667,19 @@ InstructionQueue::dumpLists()
 
     cprintf("\n");
 
-    ListOrderIt list_order_it = listOrder.begin();
-    ListOrderIt list_order_end_it = listOrder.end();
-    int i = 1;
-
-    cprintf("List order: ");
-
-    while (list_order_it != list_order_end_it) {
-        cprintf("%i OpClass:%i [sn:%llu] ", i, (*list_order_it).queueType,
-                (*list_order_it).oldestInst);
-
-        ++list_order_it;
-        ++i;
+    for (unsigned c = 0; c < ncl; c++) {
+        ListOrderIt list_order_it = listOrder[c].begin();
+        ListOrderIt list_order_end_it = listOrder[c].end();
+        int i = 1;
+        cprintf("List order cluster %u: ", c);
+        while (list_order_it != list_order_end_it) {
+            cprintf("%i OpClass:%i [sn:%llu] ", i, (*list_order_it).queueType,
+                    (*list_order_it).oldestInst);
+            ++list_order_it;
+            ++i;
+        }
+        cprintf("\n");
     }
-
-    cprintf("\n");
 }
 
 

@@ -1,6 +1,7 @@
 # Copyright (c) 2025
 # O3 CPU config matching the specification table (Seznec/Michaud-style processor).
 # Run from project root: build/X86/gem5.opt configs/o3_spec_config.py -c <binary>
+# Clustered mode: two IQs, ModN steering, interclusterDelay=3; trace with --debug-flags=ClusterCheck
 #
 # Spec summary:
 #   clock 3.5GHz | BP: 31KB TAGE + 6KB ITTAGE | fetch: 1 line, 1 taken/cycle
@@ -13,6 +14,7 @@
 
 import os
 import m5
+import argparse
 from m5.objects import *
 from m5.util import addToPath
 
@@ -22,6 +24,42 @@ from common.Caches import L1_ICache, L1_DCache, L2Cache
 # Path to binary (project root)
 _config_dir = os.path.dirname(os.path.abspath(__file__))
 PROJ_ROOT = os.path.dirname(_config_dir)
+
+# =============================================================================
+# Table IV: doubling options (cluster-safe subset supported)
+#   - B: double issue-queue capacity (applied per cluster IQ)
+#   - W: double window-ish structures (ROB/LQ/SQ/LFST + L1D MSHRs)
+#   - c: double load/store issue pressure (DL1 load/store ports + mem FU ports)
+#   - w: double front-end widths (fetch/decode/rename/dispatch/commit + taken/cycle)
+#   - i/f: double INT/FP execution ports (FU counts)
+#   - R: ignored here (phys regs already set explicitly for this design)
+# =============================================================================
+_preparser = argparse.ArgumentParser(add_help=False)
+_preparser.add_argument(
+    "--variant",
+    default="",
+    type=str,
+    help="Subset of Table IV symbols to double (e.g. 'BWcfw').",
+)
+_preparser.add_argument(
+    "--double-params",
+    default=None,
+    type=str,
+    help="Alias for --variant.",
+)
+_pre_args, _pre_unknown = _preparser.parse_known_args()
+_VARIANT = (_pre_args.double_params if _pre_args.double_params else _pre_args.variant).replace(" ", "")
+
+_R_MULT = 2 if "R" in _VARIANT else 1
+_B_MULT = 2 if "B" in _VARIANT else 1
+_W_MULT = 2 if "W" in _VARIANT else 1
+_FE_MULT = 2 if "w" in _VARIANT else 1
+_LOAD_ISSUE_MULT = 2 if "c" in _VARIANT else 1
+_INT_EXEC_MULT = 2 if ("i" in _VARIANT or "I" in _VARIANT) else 1
+_FP_EXEC_MULT = 2 if ("f" in _VARIANT or "F" in _VARIANT) else 1
+
+# O3 core has a compile-time width cap (see src/cpu/o3/limits.hh).
+_O3_MAX_WIDTH = 32
 
 # =============================================================================
 # Spec parameters
@@ -44,8 +82,8 @@ NUM_ROB_ENTRIES = 256
 TRAP_LATENCY = 12         # branch misprediction penalty (min)
 
 # Physical registers
-NUM_PHYS_INT_REGS = 128
-NUM_PHYS_FP_REGS = 128
+NUM_PHYS_INT_REGS = 128 * _R_MULT
+NUM_PHYS_FP_REGS = 128 * _R_MULT
 
 # Queues
 LQ_ENTRIES = 72
@@ -55,6 +93,12 @@ NUM_IQ_ENTRIES = 60       # per-type; gem5 uses unified IQ, total ~120
 # Cache ports (2 reads, 1 write per cycle for DL1)
 CACHE_LOAD_PORTS = 2
 CACHE_STORE_PORTS = 1
+
+# Cache MSHR merge fan-in (targets per MSHR). If this is too small, more
+# aggressive cores can hit "blockedCycles::no_targets" even when mshrs is large.
+L1D_TGTS_PER_MSHR = 8
+L2_TGTS_PER_MSHR = 12
+L3_TGTS_PER_MSHR = 12
 
 # Store sets
 SSIT_SIZE = "2048"
@@ -76,6 +120,49 @@ L3_SIZE = "8MiB"
 L3_ASSOC = 16
 L3_LATENCY = 21
 L3_MSHRS = 32
+
+# Apply supported doubling multipliers to the base parameter set.
+# NOTE: We intentionally ignore R here; phys regs are explicitly set above.
+NUM_ROB_ENTRIES *= _W_MULT
+LQ_ENTRIES *= _W_MULT
+SQ_ENTRIES *= _W_MULT
+LFST_SIZE *= _W_MULT
+L1D_MSHRS *= _W_MULT
+
+CACHE_LOAD_PORTS *= _LOAD_ISSUE_MULT
+CACHE_STORE_PORTS *= _LOAD_ISSUE_MULT
+
+FETCH_WIDTH *= _FE_MULT
+DECODE_WIDTH *= _FE_MULT
+RENAME_WIDTH *= _FE_MULT
+DISPATCH_WIDTH *= _FE_MULT
+COMMIT_WIDTH *= _FE_MULT
+MAX_TAKEN_PRED_PER_CYCLE *= _FE_MULT
+
+# Clustered O3 has one IQ per cluster; "B" doubles per-cluster capacity.
+IQ_ENTRIES_PER_CLUSTER = NUM_IQ_ENTRIES * _B_MULT
+
+# Scale overall issue/writeback widths with the increased execution/load capability.
+# Baseline is 11 total issue ports (4 INT, 2 FP, 3 addr, 2 store).
+ISSUE_WIDTH = 11 * max(1, _INT_EXEC_MULT, _FP_EXEC_MULT, _LOAD_ISSUE_MULT)
+WB_WIDTH = ISSUE_WIDTH
+FORWARD_COM_SIZE = 5 * max(1, _W_MULT, _LOAD_ISSUE_MULT)
+
+# Clamp any width-like params to the compiled MaxWidth to avoid fatal errors.
+FETCH_WIDTH = min(FETCH_WIDTH, _O3_MAX_WIDTH)
+DECODE_WIDTH = min(DECODE_WIDTH, _O3_MAX_WIDTH)
+RENAME_WIDTH = min(RENAME_WIDTH, _O3_MAX_WIDTH)
+DISPATCH_WIDTH = min(DISPATCH_WIDTH, _O3_MAX_WIDTH)
+COMMIT_WIDTH = min(COMMIT_WIDTH, _O3_MAX_WIDTH)
+ISSUE_WIDTH = min(ISSUE_WIDTH, _O3_MAX_WIDTH)
+WB_WIDTH = min(WB_WIDTH, _O3_MAX_WIDTH)
+
+# Scale MSHR merge fan-in with the pressure sources we explicitly increase
+# (window size and load issue capability).
+_MSHR_TARGETS_MULT = max(1, _W_MULT * _LOAD_ISSUE_MULT)
+L1D_TGTS_PER_MSHR *= _MSHR_TARGETS_MULT
+L2_TGTS_PER_MSHR *= _MSHR_TARGETS_MULT
+L3_TGTS_PER_MSHR *= _MSHR_TARGETS_MULT
 
 # Memory: 245 cycles @ 3.5GHz = 70ns, 16 B/cy = 56 GB/s
 MEM_LATENCY = "70ns"
@@ -144,6 +231,19 @@ class SpecWritePort(FUDesc):
     ]
     count = 2  # 2 store data
 
+# Apply supported doubling to selected FU counts.
+if _INT_EXEC_MULT != 1:
+    SpecIntALU.count *= _INT_EXEC_MULT
+    SpecIntMultDiv.count *= _INT_EXEC_MULT
+
+if _FP_EXEC_MULT != 1:
+    SpecFP_ALU.count *= _FP_EXEC_MULT
+    SpecFP_MultDiv.count *= _FP_EXEC_MULT
+
+if _LOAD_ISSUE_MULT != 1:
+    SpecReadPort.count *= _LOAD_ISSUE_MULT
+    SpecWritePort.count *= _LOAD_ISSUE_MULT
+
 class SpecFUPool(FUPool):
     FUList = [
         SpecIntALU(),
@@ -177,7 +277,7 @@ class SpecL1_DCache(L1_DCache):
     data_latency = L1D_LATENCY
     response_latency = L1D_LATENCY
     mshrs = L1D_MSHRS
-    tgts_per_mshr = 8
+    tgts_per_mshr = L1D_TGTS_PER_MSHR
     prefetcher = StridePrefetcher(on_inst=False)
 
 class SpecL2Cache(L2Cache):
@@ -187,7 +287,7 @@ class SpecL2Cache(L2Cache):
     data_latency = L2_LATENCY
     response_latency = L2_LATENCY
     mshrs = L2_MSHRS
-    tgts_per_mshr = 12
+    tgts_per_mshr = L2_TGTS_PER_MSHR
     write_buffers = 8
     prefetcher = TaggedPrefetcher(degree=2)
 
@@ -198,7 +298,7 @@ class SpecL3Cache(Cache):
     data_latency = L3_LATENCY
     response_latency = L3_LATENCY
     mshrs = L3_MSHRS
-    tgts_per_mshr = 12
+    tgts_per_mshr = L3_TGTS_PER_MSHR
     write_buffers = 16
     prefetcher = TaggedPrefetcher(degree=2)
 
@@ -230,8 +330,10 @@ system = System(
             decodeWidth=DECODE_WIDTH,
             renameWidth=RENAME_WIDTH,
             dispatchWidth=DISPATCH_WIDTH,
-            issueWidth=11,
+            issueWidth=ISSUE_WIDTH,
+            wbWidth=WB_WIDTH,
             commitWidth=COMMIT_WIDTH,
+            forwardComSize=FORWARD_COM_SIZE,
             numROBEntries=NUM_ROB_ENTRIES,
             trapLatency=TRAP_LATENCY,
             numPhysIntRegs=NUM_PHYS_INT_REGS,
@@ -244,7 +346,14 @@ system = System(
             SSITAssoc=SSIT_ASSOC,
             LFSTSize=LFST_SIZE,
             branchPred=make_branch_predictor(),
-            instQueues=[IQUnit(numEntries=NUM_IQ_ENTRIES * 2, fuPool=SpecFUPool())],
+            # Clustered O3: two IQs (60 entries each), ModN steering, cross-cluster delay
+            instQueues=[
+                IQUnit(numEntries=IQ_ENTRIES_PER_CLUSTER, fuPool=SpecFUPool()),
+                IQUnit(numEntries=IQ_ENTRIES_PER_CLUSTER, fuPool=SpecFUPool()),
+            ],
+            clusterSteerPolicy="RegBased",
+            clusterSteerGroupSize=8,
+            interclusterDelay=3,
         )
     ],
     mem_mode="timing",
@@ -295,6 +404,12 @@ system.mem_ctrl.port = system.membus.mem_side_ports
 
 # Workload: use tiny by default, override with -c; use --args for program arguments
 TINY_BIN = os.path.join(PROJ_ROOT, "tiny")
+# Mini "LBM-like" microbenchmark (kept in-tree under tests/test-progs)
+MINI_LBM_BIN = os.path.join(PROJ_ROOT, "tests", "test-progs", "mini_lbm", "bin", "x86", "mini_lbm")
+# Defaults tuned to be ~tens of millions of instructions (use --maxinsts for exact caps).
+MINI_LBM_DEFAULT_N = 16384
+MINI_LBM_DEFAULT_ITERS = 4
+MINI_LBM_DEFAULT_SEED = 1
 # SPEC 470.lbm: run_base_test_void-gcc.0001 with args "20 reference.dat 0 1 100_100_130_cf_a.of"
 LBM_DIR = os.environ.get(
     "SPEC2006_LBM_DIR",
@@ -302,6 +417,15 @@ LBM_DIR = os.environ.get(
 )
 LBM_BIN = os.path.join(LBM_DIR, "lbm_base.void-gcc")
 LBM_CMD = [LBM_BIN, "20", "reference.dat", "0", "1", "100_100_130_cf_a.of"]
+
+# SPEC 462.libquantum: run_base_test_void-gcc.0000 with args "33 5"
+LIBQUANTUM_DIR = os.environ.get(
+    "SPEC2006_LIBQUANTUM_DIR",
+    "/m/local1/aidanlevy03/spec2006_install/benchspec/CPU2006/462.libquantum/run/run_base_test_void-gcc.0000",
+)
+LIBQUANTUM_BIN = os.path.join(LIBQUANTUM_DIR, "libquantum_base.void-gcc")
+LIBQUANTUM_CMD = [LIBQUANTUM_BIN, "33", "5"]
+
 
 import argparse
 _parser = argparse.ArgumentParser()
@@ -323,14 +447,52 @@ _parser.add_argument(
     action="store_true",
     help="Run SPEC 470.lbm: lbm_base.void-gcc 20 reference.dat 0 1 100_100_130_cf_a.of",
 )
+_parser.add_argument(
+    "--libq",
+    action="store_true",
+    help="Run SPEC 470.libquantum: libquantum_base.void-gcc 33 5",
+)
+_parser.add_argument(
+    "--mini-lbm",
+    action="store_true",
+    help="Run in-tree mini LBM-like microbenchmark (tests/test-progs/mini_lbm)",
+)
+_parser.add_argument("--mini-n", type=int, default=MINI_LBM_DEFAULT_N, help="mini_lbm: number of cells (-n)")
+_parser.add_argument("--mini-iters", type=int, default=MINI_LBM_DEFAULT_ITERS, help="mini_lbm: iterations (-i)")
+_parser.add_argument("--mini-seed", type=int, default=MINI_LBM_DEFAULT_SEED, help="mini_lbm: seed (-s)")
+_parser.add_argument("--mini-verbose", action="store_true", help="mini_lbm: print per-iter progress (omit -q)")
 _args, _ = _parser.parse_known_args()
 
-if _args.lbm:
+if _args.mini_lbm:
+    binary = MINI_LBM_BIN
+    cmd_args = [
+        "-n",
+        str(_args.mini_n),
+        "-i",
+        str(_args.mini_iters),
+        "-s",
+        str(_args.mini_seed),
+    ]
+    if not _args.mini_verbose:
+        cmd_args.append("-q")
+    process_cwd = os.path.dirname(os.path.abspath(binary)) or "/"
+    if not os.path.exists(binary):
+        raise SystemExit(
+            f"mini_lbm binary not found: {binary} (build it with: "
+            f"make -C {os.path.join(PROJ_ROOT, 'tests', 'test-progs', 'mini_lbm', 'src')} -f Makefile.x86)"
+        )
+elif _args.lbm:
     binary = LBM_BIN
     cmd_args = LBM_CMD[1:]  # executable already in LBM_CMD[0]
     process_cwd = LBM_DIR
     if not os.path.exists(binary):
         raise SystemExit(f"LBM binary not found: {binary} (set SPEC2006_LBM_DIR?)")
+elif _args.libq:
+    binary = LIBQUANTUM_BIN
+    cmd_args = LIBQUANTUM_CMD[1:]  # executable already in LBM_CMD[0]
+    process_cwd = LIBQUANTUM_DIR
+    if not os.path.exists(binary):
+        raise SystemExit(f"libquantum binary not found: {binary} (set SPEC2006_LIBQUANTUM_DIR?)")	
 elif _args.cmd is not None:
     binary = _args.cmd
     cmd_args = _args.args.split() if _args.args else []

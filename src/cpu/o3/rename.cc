@@ -48,6 +48,7 @@
 #include "cpu/o3/limits.hh"
 #include "cpu/reg_class.hh"
 #include "debug/Activity.hh"
+#include "debug/ClusterCheck.hh"
 #include "debug/Rename.hh"
 #include "params/BaseO3CPU.hh"
 
@@ -682,6 +683,10 @@ Rename::renameInsts(ThreadID tid)
                 "Processing instruction [sn:%llu] with PC %s.\n",
                 tid, inst->seqNum, inst->pcState());
 
+        int cluster = inst->inCluster(1) ? 1 : 0;
+        DPRINTF(ClusterCheck, "rename arrival uop [sn:%llu] PC %s cluster %d\n",
+                inst->seqNum, inst->pcState(), cluster);
+
         // Check here to make sure there are enough destination registers
         // to rename to.  Otherwise block.
         if (!renameMap[tid]->canRename(inst)) {
@@ -1124,6 +1129,9 @@ Rename::renameDestRegs(const DynInstPtr &inst, ThreadID tid)
     unsigned num_dest_regs = inst->numDestRegs();
     auto *isa = tc->getIsaPtr();
 
+    // Cluster for partitioned INT/FP: steer dests to this instruction's cluster.
+    const int cluster = inst->inCluster(1) ? 1 : 0;
+
     // Rename the destination registers.
     for (int dest_idx = 0; dest_idx < num_dest_regs; dest_idx++) {
         const RegId& dest_reg = inst->destRegIdx(dest_idx);
@@ -1132,7 +1140,7 @@ Rename::renameDestRegs(const DynInstPtr &inst, ThreadID tid)
         RegId flat_dest_regid = dest_reg.flatten(*isa);
         flat_dest_regid.setNumPinnedWrites(dest_reg.getNumPinnedWrites());
 
-        rename_result = map->rename(flat_dest_regid);
+        rename_result = map->rename(flat_dest_regid, cluster);
 
         inst->flattenedDestIdx(dest_idx, flat_dest_regid);
 
