@@ -1,0 +1,28 @@
+INT BENCHMARKS
+python3 queue_gem5_jobs.py \
+    --tests libq bzip2 mcf hmmer sjeng omnetpp  \
+    --variants none BWifcw RBWifcw \
+    --reg-based no \
+    --iteration queued_runs \
+    --dry-run
+
+FP BENCHMARKS
+python3 queue_gem5_jobs.py \
+    --tests bwaves gromacs cactusadm gemsfdtd tonto sphinx3 lbm \
+    --variants none BWifcw RBWifcw \
+    --reg-based no \
+    --iteration queued_runs \
+    --dry-run
+
+INT CLUSTERED
+python3 queue_gem5_jobs.py \
+    --tests libq bzip2 mcf hmmer sjeng omnetpp  \
+    --variants none BWifcw \
+    --reg-based yes,no \
+    --intercluster-delay 3 \
+    --iteration queued_runs \
+    --dry-run
+
+
+FAKE
+./build/X86/gem5.opt --outdir=runlogs/temp/123 configs/o3_spec_config.py --libq --intercluster-delay 3

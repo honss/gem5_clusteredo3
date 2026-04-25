@@ -426,6 +426,164 @@ LIBQUANTUM_DIR = os.environ.get(
 LIBQUANTUM_BIN = os.path.join(LIBQUANTUM_DIR, "libquantum_base.void-gcc")
 LIBQUANTUM_CMD = [LIBQUANTUM_BIN, "33", "5"]
 
+# SPEC 400.perlbench: run_base_test_void-gcc.0001
+PERLBENCH_DIR = os.environ.get(
+    "SPEC2006_PERLBENCH_DIR",
+    "/m/local1/aidanlevy03/spec2006_install/benchspec/CPU2006/400.perlbench/run/run_base_test_void-gcc.0001",
+)
+PERLBENCH_BIN = os.path.join(PERLBENCH_DIR, "perlbench_base.void-gcc")
+PERLBENCH_CMD = [PERLBENCH_BIN, "-I.", "-I./lib", "test.pl"]
+
+# SPEC 401.bzip2: run_base_test_void-gcc.0001
+BZIP2_DIR = os.environ.get(
+    "SPEC2006_BZIP2_DIR",
+    "/m/local1/aidanlevy03/spec2006_install/benchspec/CPU2006/401.bzip2/run/run_base_test_void-gcc.0001",
+)
+BZIP2_BIN = os.path.join(BZIP2_DIR, "bzip2_base.void-gcc")
+BZIP2_CMD = [BZIP2_BIN, "dryer.jpg", "2"]
+
+# SPEC 429.mcf: run_base_test_void-gcc.0001
+MCF_DIR = os.environ.get(
+    "SPEC2006_MCF_DIR",
+    "/m/local1/aidanlevy03/spec2006_install/benchspec/CPU2006/429.mcf/run/run_base_test_void-gcc.0001",
+)
+MCF_BIN = os.path.join(MCF_DIR, "mcf_base.void-gcc")
+MCF_CMD = [MCF_BIN, "inp.in"]
+
+# SPEC 445.gobmk: run_base_test_void-gcc.0001
+GOBMK_DIR = os.environ.get(
+    "SPEC2006_GOBMK_DIR",
+    "/m/local1/aidanlevy03/spec2006_install/benchspec/CPU2006/445.gobmk/run/run_base_test_void-gcc.0001",
+)
+GOBMK_BIN = os.path.join(GOBMK_DIR, "gobmk_base.void-gcc")
+GOBMK_CMD = [GOBMK_BIN, "--quiet", "--mode", "gtp"]
+
+# SPEC 456.hmmer: run_base_test_void-gcc.0001
+HMMER_DIR = os.environ.get(
+    "SPEC2006_HMMER_DIR",
+    "/m/local1/aidanlevy03/spec2006_install/benchspec/CPU2006/456.hmmer/run/run_base_test_void-gcc.0001",
+)
+HMMER_BIN = os.path.join(HMMER_DIR, "hmmer_base.void-gcc")
+HMMER_CMD = [
+    HMMER_BIN,
+    "--fixed",
+    "0",
+    "--mean",
+    "325",
+    "--num",
+    "45000",
+    "--sd",
+    "200",
+    "--seed",
+    "0",
+    "bombesin.hmm",
+]
+
+# SPEC 458.sjeng: run_base_test_void-gcc.0001
+SJENG_DIR = os.environ.get(
+    "SPEC2006_SJENG_DIR",
+    "/m/local1/aidanlevy03/spec2006_install/benchspec/CPU2006/458.sjeng/run/run_base_test_void-gcc.0001",
+)
+SJENG_BIN = os.path.join(SJENG_DIR, "sjeng_base.void-gcc")
+SJENG_CMD = [SJENG_BIN, "test.txt"]
+
+# SPEC 464.h264ref: run_base_test_void-gcc.0001
+H264REF_DIR = os.environ.get(
+    "SPEC2006_H264REF_DIR",
+    "/m/local1/aidanlevy03/spec2006_install/benchspec/CPU2006/464.h264ref/run/run_base_test_void-gcc.0001",
+)
+H264REF_BIN = os.path.join(H264REF_DIR, "h264ref_base.void-gcc")
+H264REF_CMD = [H264REF_BIN, "-d", "foreman_test_encoder_baseline.cfg"]
+
+# SPEC 471.omnetpp: run_base_test_void-gcc.0001
+OMNETPP_DIR = os.environ.get(
+    "SPEC2006_OMNETPP_DIR",
+    "/m/local1/aidanlevy03/spec2006_install/benchspec/CPU2006/471.omnetpp/run/run_base_test_void-gcc.0001",
+)
+OMNETPP_BIN = os.path.join(OMNETPP_DIR, "omnetpp_base.void-gcc")
+OMNETPP_CMD = [OMNETPP_BIN, "omnetpp.ini"]
+
+# SPEC 473.astar: run_base_test_void-gcc.0001
+ASTAR_DIR = os.environ.get(
+    "SPEC2006_ASTAR_DIR",
+    "/m/local1/aidanlevy03/spec2006_install/benchspec/CPU2006/473.astar/run/run_base_test_void-gcc.0001",
+)
+ASTAR_BIN = os.path.join(ASTAR_DIR, "astar_base.void-gcc")
+ASTAR_CMD = [ASTAR_BIN, "lake.cfg"]
+
+# --- run_base_test_void-gcc.0004 (FP / extra CPU2006 test workloads) ---
+# SPEC 410.bwaves
+BWAVES_DIR = os.environ.get(
+    "SPEC2006_BWAVES_DIR",
+    "/m/local1/aidanlevy03/spec2006_install/benchspec/CPU2006/410.bwaves/run/run_base_test_void-gcc.0004",
+)
+BWAVES_BIN = os.path.join(BWAVES_DIR, "bwaves_base.void-gcc")
+BWAVES_CMD = [BWAVES_BIN]
+
+# SPEC 434.zeusmp
+ZEUSMP_DIR = os.environ.get(
+    "SPEC2006_ZEUSMP_DIR",
+    "/m/local1/aidanlevy03/spec2006_install/benchspec/CPU2006/434.zeusmp/run/run_base_test_void-gcc.0004",
+)
+ZEUSMP_BIN = os.path.join(ZEUSMP_DIR, "zeusmp_base.void-gcc")
+ZEUSMP_CMD = [ZEUSMP_BIN]
+
+# SPEC 435.gromacs
+GROMACS_DIR = os.environ.get(
+    "SPEC2006_GROMACS_DIR",
+    "/m/local1/aidanlevy03/spec2006_install/benchspec/CPU2006/435.gromacs/run/run_base_test_void-gcc.0004",
+)
+GROMACS_BIN = os.path.join(GROMACS_DIR, "gromacs_base.void-gcc")
+GROMACS_CMD = [GROMACS_BIN, "-silent", "-deffnm", "gromacs", "-nice", "0"]
+
+# SPEC 436.cactusADM
+CACTUSADM_DIR = os.environ.get(
+    "SPEC2006_CACTUSADM_DIR",
+    "/m/local1/aidanlevy03/spec2006_install/benchspec/CPU2006/436.cactusADM/run/run_base_test_void-gcc.0004",
+)
+CACTUSADM_BIN = os.path.join(CACTUSADM_DIR, "cactusADM_base.void-gcc")
+CACTUSADM_CMD = [CACTUSADM_BIN, "benchADM.par"]
+
+# SPEC 444.namd
+NAMD_DIR = os.environ.get(
+    "SPEC2006_NAMD_DIR",
+    "/m/local1/aidanlevy03/spec2006_install/benchspec/CPU2006/444.namd/run/run_base_test_void-gcc.0004",
+)
+NAMD_BIN = os.path.join(NAMD_DIR, "namd_base.void-gcc")
+NAMD_CMD = [NAMD_BIN, "--input", "namd.input", "--iterations", "1", "--output", "namd.out"]
+
+# SPEC 453.povray
+POVRAY_DIR = os.environ.get(
+    "SPEC2006_POVRAY_DIR",
+    "/m/local1/aidanlevy03/spec2006_install/benchspec/CPU2006/453.povray/run/run_base_test_void-gcc.0004",
+)
+POVRAY_BIN = os.path.join(POVRAY_DIR, "povray_base.void-gcc")
+POVRAY_CMD = [POVRAY_BIN, "SPEC-benchmark-test.ini"]
+
+# SPEC 459.GemsFDTD
+GEMSFDTD_DIR = os.environ.get(
+    "SPEC2006_GEMSFDTD_DIR",
+    "/m/local1/aidanlevy03/spec2006_install/benchspec/CPU2006/459.GemsFDTD/run/run_base_test_void-gcc.0004",
+)
+GEMSFDTD_BIN = os.path.join(GEMSFDTD_DIR, "GemsFDTD_base.void-gcc")
+GEMSFDTD_CMD = [GEMSFDTD_BIN]
+
+# SPEC 465.tonto
+TONTO_DIR = os.environ.get(
+    "SPEC2006_TONTO_DIR",
+    "/m/local1/aidanlevy03/spec2006_install/benchspec/CPU2006/465.tonto/run/run_base_test_void-gcc.0004",
+)
+TONTO_BIN = os.path.join(TONTO_DIR, "tonto_base.void-gcc")
+TONTO_CMD = [TONTO_BIN]
+
+# SPEC 482.sphinx3
+SPHINX3_DIR = os.environ.get(
+    "SPEC2006_SPHINX3_DIR",
+    "/m/local1/aidanlevy03/spec2006_install/benchspec/CPU2006/482.sphinx3/run/run_base_test_void-gcc.0004",
+)
+SPHINX3_BIN = os.path.join(SPHINX3_DIR, "sphinx_livepretend_base.void-gcc")
+SPHINX3_CMD = [SPHINX3_BIN, "ctlfile", ".", "args.an4"]
+
 
 import argparse
 _parser = argparse.ArgumentParser()
@@ -450,7 +608,72 @@ _parser.add_argument(
 _parser.add_argument(
     "--libq",
     action="store_true",
-    help="Run SPEC 470.libquantum: libquantum_base.void-gcc 33 5",
+    help="Run SPEC 462.libquantum: libquantum_base.void-gcc 33 5",
+)
+_parser.add_argument("--perlbench", action="store_true", help="Run SPEC 400.perlbench: perlbench_base.void-gcc -I. -I./lib test.pl")
+_parser.add_argument("--bzip2", action="store_true", help="Run SPEC 401.bzip2: bzip2_base.void-gcc dryer.jpg 2")
+_parser.add_argument("--mcf", action="store_true", help="Run SPEC 429.mcf: mcf_base.void-gcc inp.in")
+_parser.add_argument("--gobmk", action="store_true", help="Run SPEC 445.gobmk: gobmk_base.void-gcc --quiet --mode gtp")
+_parser.add_argument(
+    "--hmmer",
+    action="store_true",
+    help="Run SPEC 456.hmmer: hmmer_base.void-gcc --fixed 0 --mean 325 --num 45000 --sd 200 --seed 0 bombesin.hmm",
+)
+_parser.add_argument("--sjeng", action="store_true", help="Run SPEC 458.sjeng: sjeng_base.void-gcc test.txt")
+_parser.add_argument(
+    "--h264ref",
+    action="store_true",
+    help="Run SPEC 464.h264ref: h264ref_base.void-gcc -d foreman_test_encoder_baseline.cfg",
+)
+_parser.add_argument("--omnetpp", action="store_true", help="Run SPEC 471.omnetpp: omnetpp_base.void-gcc omnetpp.ini")
+_parser.add_argument("--astar", action="store_true", help="Run SPEC 473.astar: astar_base.void-gcc lake.cfg")
+_parser.add_argument("--bwaves", action="store_true", help="Run SPEC 410.bwaves (.0004): bwaves_base.void-gcc")
+_parser.add_argument("--zeusmp", action="store_true", help="Run SPEC 434.zeusmp (.0004): zeusmp_base.void-gcc")
+_parser.add_argument(
+    "--gromacs",
+    action="store_true",
+    help="Run SPEC 435.gromacs (.0004): gromacs_base.void-gcc -silent -deffnm gromacs -nice 0",
+)
+_parser.add_argument("--cactusadm", action="store_true", help="Run SPEC 436.cactusADM (.0004): cactusADM_base.void-gcc benchADM.par")
+_parser.add_argument(
+    "--namd",
+    action="store_true",
+    help="Run SPEC 444.namd (.0004): namd_base.void-gcc --input namd.input --iterations 1 --output namd.out",
+)
+_parser.add_argument("--povray", action="store_true", help="Run SPEC 453.povray (.0004): povray_base.void-gcc SPEC-benchmark-test.ini")
+_parser.add_argument("--gemsfdtd", action="store_true", help="Run SPEC 459.GemsFDTD (.0004): GemsFDTD_base.void-gcc")
+_parser.add_argument("--tonto", action="store_true", help="Run SPEC 465.tonto (.0004): tonto_base.void-gcc")
+_parser.add_argument(
+    "--sphinx3",
+    action="store_true",
+    help="Run SPEC 482.sphinx3 (.0004): sphinx_livepretend_base.void-gcc ctlfile . args.an4",
+)
+_parser.add_argument(
+    "--cluster-steer-policy",
+    type=str,
+    choices=["RegBased", "ModN"],
+    default="ModN",
+    help="Cluster steering policy (default: ModN)",
+)
+_parser.add_argument(
+    "--reg-based",
+    action="store_true",
+    help="Shortcut for --cluster-steer-policy RegBased",
+)
+_parser.add_argument(
+    "--intercluster-delay",
+    type=int,
+    default=3,
+    help="Clustered O3 inter-cluster communication delay in cycles (default: 3)",
+)
+_parser.add_argument(
+    "--cluster-steer-group-size",
+    type=int,
+    default=8,
+    help=(
+        "ModN: instructions per cluster before switching. "
+        "RegBased: ModN-style fallback group size when no int/float arch reg applies (default: 8)"
+    ),
 )
 _parser.add_argument(
     "--mini-lbm",
@@ -461,7 +684,23 @@ _parser.add_argument("--mini-n", type=int, default=MINI_LBM_DEFAULT_N, help="min
 _parser.add_argument("--mini-iters", type=int, default=MINI_LBM_DEFAULT_ITERS, help="mini_lbm: iterations (-i)")
 _parser.add_argument("--mini-seed", type=int, default=MINI_LBM_DEFAULT_SEED, help="mini_lbm: seed (-s)")
 _parser.add_argument("--mini-verbose", action="store_true", help="mini_lbm: print per-iter progress (omit -q)")
+_parser.add_argument(
+    "--ld-library-path",
+    type=str,
+    default=None,
+    help=(
+        "Colon-separated dirs prepended to emulated LD_LIBRARY_PATH (for guest "
+        "dlopen/loader). Also uses host env GEM5_LD_LIBRARY_PATH and LD_LIBRARY_PATH if set."
+    ),
+)
 _args, _ = _parser.parse_known_args()
+
+# Allow steering selection at runtime without editing this file.
+_steer_policy = "RegBased" if _args.reg_based else _args.cluster_steer_policy
+for cpu in system.cpu:
+    cpu.clusterSteerPolicy = _steer_policy
+    cpu.clusterSteerGroupSize = _args.cluster_steer_group_size
+    cpu.interclusterDelay = _args.intercluster_delay
 
 if _args.mini_lbm:
     binary = MINI_LBM_BIN
@@ -493,6 +732,114 @@ elif _args.libq:
     process_cwd = LIBQUANTUM_DIR
     if not os.path.exists(binary):
         raise SystemExit(f"libquantum binary not found: {binary} (set SPEC2006_LIBQUANTUM_DIR?)")	
+elif _args.perlbench:
+    binary = PERLBENCH_BIN
+    cmd_args = PERLBENCH_CMD[1:]
+    process_cwd = PERLBENCH_DIR
+    if not os.path.exists(binary):
+        raise SystemExit(f"perlbench binary not found: {binary} (set SPEC2006_PERLBENCH_DIR?)")
+elif _args.bzip2:
+    binary = BZIP2_BIN
+    cmd_args = BZIP2_CMD[1:]
+    process_cwd = BZIP2_DIR
+    if not os.path.exists(binary):
+        raise SystemExit(f"bzip2 binary not found: {binary} (set SPEC2006_BZIP2_DIR?)")
+elif _args.mcf:
+    binary = MCF_BIN
+    cmd_args = MCF_CMD[1:]
+    process_cwd = MCF_DIR
+    if not os.path.exists(binary):
+        raise SystemExit(f"mcf binary not found: {binary} (set SPEC2006_MCF_DIR?)")
+elif _args.gobmk:
+    binary = GOBMK_BIN
+    cmd_args = GOBMK_CMD[1:]
+    process_cwd = GOBMK_DIR
+    if not os.path.exists(binary):
+        raise SystemExit(f"gobmk binary not found: {binary} (set SPEC2006_GOBMK_DIR?)")
+elif _args.hmmer:
+    binary = HMMER_BIN
+    cmd_args = HMMER_CMD[1:]
+    process_cwd = HMMER_DIR
+    if not os.path.exists(binary):
+        raise SystemExit(f"hmmer binary not found: {binary} (set SPEC2006_HMMER_DIR?)")
+elif _args.sjeng:
+    binary = SJENG_BIN
+    cmd_args = SJENG_CMD[1:]
+    process_cwd = SJENG_DIR
+    if not os.path.exists(binary):
+        raise SystemExit(f"sjeng binary not found: {binary} (set SPEC2006_SJENG_DIR?)")
+elif _args.h264ref:
+    binary = H264REF_BIN
+    cmd_args = H264REF_CMD[1:]
+    process_cwd = H264REF_DIR
+    if not os.path.exists(binary):
+        raise SystemExit(f"h264ref binary not found: {binary} (set SPEC2006_H264REF_DIR?)")
+elif _args.omnetpp:
+    binary = OMNETPP_BIN
+    cmd_args = OMNETPP_CMD[1:]
+    process_cwd = OMNETPP_DIR
+    if not os.path.exists(binary):
+        raise SystemExit(f"omnetpp binary not found: {binary} (set SPEC2006_OMNETPP_DIR?)")
+elif _args.astar:
+    binary = ASTAR_BIN
+    cmd_args = ASTAR_CMD[1:]
+    process_cwd = ASTAR_DIR
+    if not os.path.exists(binary):
+        raise SystemExit(f"astar binary not found: {binary} (set SPEC2006_ASTAR_DIR?)")
+elif _args.bwaves:
+    binary = BWAVES_BIN
+    cmd_args = BWAVES_CMD[1:]
+    process_cwd = BWAVES_DIR
+    if not os.path.exists(binary):
+        raise SystemExit(f"bwaves binary not found: {binary} (set SPEC2006_BWAVES_DIR?)")
+elif _args.zeusmp:
+    binary = ZEUSMP_BIN
+    cmd_args = ZEUSMP_CMD[1:]
+    process_cwd = ZEUSMP_DIR
+    if not os.path.exists(binary):
+        raise SystemExit(f"zeusmp binary not found: {binary} (set SPEC2006_ZEUSMP_DIR?)")
+elif _args.gromacs:
+    binary = GROMACS_BIN
+    cmd_args = GROMACS_CMD[1:]
+    process_cwd = GROMACS_DIR
+    if not os.path.exists(binary):
+        raise SystemExit(f"gromacs binary not found: {binary} (set SPEC2006_GROMACS_DIR?)")
+elif _args.cactusadm:
+    binary = CACTUSADM_BIN
+    cmd_args = CACTUSADM_CMD[1:]
+    process_cwd = CACTUSADM_DIR
+    if not os.path.exists(binary):
+        raise SystemExit(f"cactusADM binary not found: {binary} (set SPEC2006_CACTUSADM_DIR?)")
+elif _args.namd:
+    binary = NAMD_BIN
+    cmd_args = NAMD_CMD[1:]
+    process_cwd = NAMD_DIR
+    if not os.path.exists(binary):
+        raise SystemExit(f"namd binary not found: {binary} (set SPEC2006_NAMD_DIR?)")
+elif _args.povray:
+    binary = POVRAY_BIN
+    cmd_args = POVRAY_CMD[1:]
+    process_cwd = POVRAY_DIR
+    if not os.path.exists(binary):
+        raise SystemExit(f"povray binary not found: {binary} (set SPEC2006_POVRAY_DIR?)")
+elif _args.gemsfdtd:
+    binary = GEMSFDTD_BIN
+    cmd_args = GEMSFDTD_CMD[1:]
+    process_cwd = GEMSFDTD_DIR
+    if not os.path.exists(binary):
+        raise SystemExit(f"GemsFDTD binary not found: {binary} (set SPEC2006_GEMSFDTD_DIR?)")
+elif _args.tonto:
+    binary = TONTO_BIN
+    cmd_args = TONTO_CMD[1:]
+    process_cwd = TONTO_DIR
+    if not os.path.exists(binary):
+        raise SystemExit(f"tonto binary not found: {binary} (set SPEC2006_TONTO_DIR?)")
+elif _args.sphinx3:
+    binary = SPHINX3_BIN
+    cmd_args = SPHINX3_CMD[1:]
+    process_cwd = SPHINX3_DIR
+    if not os.path.exists(binary):
+        raise SystemExit(f"sphinx3 binary not found: {binary} (set SPEC2006_SPHINX3_DIR?)")
 elif _args.cmd is not None:
     binary = _args.cmd
     cmd_args = _args.args.split() if _args.args else []
@@ -511,6 +858,18 @@ process.executable = binary
 process.cwd = process_cwd
 process.gid = os.getgid()
 process.cmd = [binary] + cmd_args
+# SE mode does not inherit the shell's dynamic linker search path; the guest
+# interpreter only sees Process.env. Forward common host vars + --ld-library-path.
+_ld_parts: list[str] = []
+if _args.ld_library_path:
+    _ld_parts.append(_args.ld_library_path)
+if os.environ.get("GEM5_LD_LIBRARY_PATH"):
+    _ld_parts.append(os.environ["GEM5_LD_LIBRARY_PATH"])
+if os.environ.get("LD_LIBRARY_PATH"):
+    _ld_parts.append(os.environ["LD_LIBRARY_PATH"])
+_ld_merged = ":".join(p for p in _ld_parts if p)
+if _ld_merged:
+    process.env = [f"LD_LIBRARY_PATH={_ld_merged}"]
 
 system.workload = SEWorkload.init_compatible(binary)
 for cpu in system.cpu:

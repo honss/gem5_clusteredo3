@@ -1,0 +1,210 @@
+# SPEC 400.perlbench: run_base_test_void-gcc.0001
+PERLBENCH_DIR = os.environ.get(
+    "SPEC2006_PERLBENCH_DIR",
+    "/m/local1/aidanlevy03/spec2006_install/benchspec/CPU2006/400.perlbench/run/run_base_test_void-gcc.0001",
+)
+PERLBENCH_BIN = os.path.join(PERLBENCH_DIR, "perlbench_base.void-gcc")
+PERLBENCH_CMD = [PERLBENCH_BIN, "-I.", "-I./lib", "test.pl"]
+
+# actual command parts from speccmds:
+# ../run_base_test_void-gcc.0001/perlbench_base.void-gcc -I. -I./lib attrs.pl
+# ../run_base_test_void-gcc.0001/perlbench_base.void-gcc -I. -I./lib gv.pl
+# ../run_base_test_void-gcc.0001/perlbench_base.void-gcc -I. -I./lib makerand.pl
+# ../run_base_test_void-gcc.0001/perlbench_base.void-gcc -I. -I./lib pack.pl
+# ../run_base_test_void-gcc.0001/perlbench_base.void-gcc -I. -I./lib redef.pl
+# ../run_base_test_void-gcc.0001/perlbench_base.void-gcc -I. -I./lib ref.pl
+# ../run_base_test_void-gcc.0001/perlbench_base.void-gcc -I. -I./lib regmesg.pl
+# ../run_base_test_void-gcc.0001/perlbench_base.void-gcc -I. -I./lib test.pl
+
+# SPEC 401.bzip2: run_base_test_void-gcc.0001
+BZIP2_DIR = os.environ.get(
+    "SPEC2006_BZIP2_DIR",
+    "/m/local1/aidanlevy03/spec2006_install/benchspec/CPU2006/401.bzip2/run/run_base_test_void-gcc.0001",
+)
+BZIP2_BIN = os.path.join(BZIP2_DIR, "bzip2_base.void-gcc")
+BZIP2_CMD = [BZIP2_BIN, "dryer.jpg", "2"]
+# actual command parts from speccmds:
+# ../run_base_test_void-gcc.0001/bzip2_base.void-gcc input.program 5
+# ../run_base_test_void-gcc.0001/bzip2_base.void-gcc dryer.jpg 2
+
+# SPEC 429.mcf: run_base_test_void-gcc.0001
+MCF_DIR = os.environ.get(
+    "SPEC2006_MCF_DIR",
+    "/m/local1/aidanlevy03/spec2006_install/benchspec/CPU2006/429.mcf/run/run_base_test_void-gcc.0001",
+)
+MCF_BIN = os.path.join(MCF_DIR, "mcf_base.void-gcc")
+MCF_CMD = [MCF_BIN, "inp.in"]
+# actual command part from speccmds:
+# ../run_base_test_void-gcc.0001/mcf_base.void-gcc inp.in
+
+# SPEC 445.gobmk: run_base_test_void-gcc.0001
+GOBMK_DIR = os.environ.get(
+    "SPEC2006_GOBMK_DIR",
+    "/m/local1/aidanlevy03/spec2006_install/benchspec/CPU2006/445.gobmk/run/run_base_test_void-gcc.0001",
+)
+GOBMK_BIN = os.path.join(GOBMK_DIR, "gobmk_base.void-gcc")
+GOBMK_CMD = [GOBMK_BIN, "--quiet", "--mode", "gtp"]
+
+# actual command parts from speccmds:
+# VERY SLOW
+# ../run_base_test_void-gcc.0001/gobmk_base.void-gcc --quiet --mode gtp
+
+
+# SPEC 456.hmmer: run_base_test_void-gcc.0001
+HMMER_DIR = os.environ.get(
+    "SPEC2006_HMMER_DIR",
+    "/m/local1/aidanlevy03/spec2006_install/benchspec/CPU2006/456.hmmer/run/run_base_test_void-gcc.0001",
+)
+HMMER_BIN = os.path.join(HMMER_DIR, "hmmer_base.void-gcc")
+HMMER_CMD = [
+    HMMER_BIN,
+    "--fixed",
+    "0",
+    "--mean",
+    "325",
+    "--num",
+    "45000",
+    "--sd",
+    "200",
+    "--seed",
+    "0",
+    "bombesin.hmm",
+]
+# actual command part from speccmds:
+# ../run_base_test_void-gcc.0001/hmmer_base.void-gcc --fixed 0 --mean 325 --num 45000 --sd 200 --seed 0 bombesin.hmm
+
+# SPEC 458.sjeng: run_base_test_void-gcc.0001
+SJENG_DIR = os.environ.get(
+    "SPEC2006_SJENG_DIR",
+    "/m/local1/aidanlevy03/spec2006_install/benchspec/CPU2006/458.sjeng/run/run_base_test_void-gcc.0001",
+)
+SJENG_BIN = os.path.join(SJENG_DIR, "sjeng_base.void-gcc")
+SJENG_CMD = [SJENG_BIN, "test.txt"]
+# actual command part from speccmds:
+# ../run_base_test_void-gcc.0001/sjeng_base.void-gcc test.txt
+
+# SPEC 464.h264ref: run_base_test_void-gcc.0001
+H264REF_DIR = os.environ.get(
+    "SPEC2006_H264REF_DIR",
+    "/m/local1/aidanlevy03/spec2006_install/benchspec/CPU2006/464.h264ref/run/run_base_test_void-gcc.0001",
+)
+H264REF_BIN = os.path.join(H264REF_DIR, "h264ref_base.void-gcc")
+H264REF_CMD = [H264REF_BIN, "-d", "foreman_test_encoder_baseline.cfg"]
+# actual command part from speccmds:
+# VERY SLOW
+# ../run_base_test_void-gcc.0001/h264ref_base.void-gcc -d foreman_test_encoder_baseline.cfg
+
+# SPEC 471.omnetpp: run_base_test_void-gcc.0001
+OMNETPP_DIR = os.environ.get(
+    "SPEC2006_OMNETPP_DIR",
+    "/m/local1/aidanlevy03/spec2006_install/benchspec/CPU2006/471.omnetpp/run/run_base_test_void-gcc.0001",
+)
+OMNETPP_BIN = os.path.join(OMNETPP_DIR, "omnetpp_base.void-gcc")
+OMNETPP_CMD = [OMNETPP_BIN, "omnetpp.ini"]
+# actual command part from speccmds:
+# ../run_base_test_void-gcc.0001/omnetpp_base.void-gcc omnetpp.ini
+
+# SPEC 473.astar: run_base_test_void-gcc.0001
+ASTAR_DIR = os.environ.get(
+    "SPEC2006_ASTAR_DIR",
+    "/m/local1/aidanlevy03/spec2006_install/benchspec/CPU2006/473.astar/run/run_base_test_void-gcc.0001",
+)
+ASTAR_BIN = os.path.join(ASTAR_DIR, "astar_base.void-gcc")
+ASTAR_CMD = [ASTAR_BIN, "lake.cfg"]
+# actual command part from speccmds:
+# ../run_base_test_void-gcc.0001/astar_base.void-gcc lake.cfg
+
+
+# =============================================================================
+# run_base_test_void-gcc.0004 (FP / additional CPU2006 test workloads)
+# =============================================================================
+
+# SPEC 410.bwaves: run_base_test_void-gcc.0004
+BWAVES_DIR = os.environ.get(
+    "SPEC2006_BWAVES_DIR",
+    "/m/local1/aidanlevy03/spec2006_install/benchspec/CPU2006/410.bwaves/run/run_base_test_void-gcc.0004",
+)
+BWAVES_BIN = os.path.join(BWAVES_DIR, "bwaves_base.void-gcc")
+BWAVES_CMD = [BWAVES_BIN]
+# actual command part from speccmds:
+# ../run_base_test_void-gcc.0004/bwaves_base.void-gcc
+
+# SPEC 434.zeusmp: run_base_test_void-gcc.0004
+ZEUSMP_DIR = os.environ.get(
+    "SPEC2006_ZEUSMP_DIR",
+    "/m/local1/aidanlevy03/spec2006_install/benchspec/CPU2006/434.zeusmp/run/run_base_test_void-gcc.0004",
+)
+ZEUSMP_BIN = os.path.join(ZEUSMP_DIR, "zeusmp_base.void-gcc")
+ZEUSMP_CMD = [ZEUSMP_BIN]
+# actual command part from speccmds:
+# ../run_base_test_void-gcc.0004/zeusmp_base.void-gcc
+
+# SPEC 435.gromacs: run_base_test_void-gcc.0004
+GROMACS_DIR = os.environ.get(
+    "SPEC2006_GROMACS_DIR",
+    "/m/local1/aidanlevy03/spec2006_install/benchspec/CPU2006/435.gromacs/run/run_base_test_void-gcc.0004",
+)
+GROMACS_BIN = os.path.join(GROMACS_DIR, "gromacs_base.void-gcc")
+GROMACS_CMD = [GROMACS_BIN, "-silent", "-deffnm", "gromacs", "-nice", "0"]
+# actual command part from speccmds:
+# ../run_base_test_void-gcc.0004/gromacs_base.void-gcc -silent -deffnm gromacs -nice 0
+
+# SPEC 436.cactusADM: run_base_test_void-gcc.0004
+CACTUSADM_DIR = os.environ.get(
+    "SPEC2006_CACTUSADM_DIR",
+    "/m/local1/aidanlevy03/spec2006_install/benchspec/CPU2006/436.cactusADM/run/run_base_test_void-gcc.0004",
+)
+CACTUSADM_BIN = os.path.join(CACTUSADM_DIR, "cactusADM_base.void-gcc")
+CACTUSADM_CMD = [CACTUSADM_BIN, "benchADM.par"]
+# actual command part from speccmds:
+# ../run_base_test_void-gcc.0004/cactusADM_base.void-gcc benchADM.par
+
+# SPEC 444.namd: run_base_test_void-gcc.0004
+NAMD_DIR = os.environ.get(
+    "SPEC2006_NAMD_DIR",
+    "/m/local1/aidanlevy03/spec2006_install/benchspec/CPU2006/444.namd/run/run_base_test_void-gcc.0004",
+)
+NAMD_BIN = os.path.join(NAMD_DIR, "namd_base.void-gcc")
+NAMD_CMD = [NAMD_BIN, "--input", "namd.input", "--iterations", "1", "--output", "namd.out"]
+# actual command part from speccmds:
+# ../run_base_test_void-gcc.0004/namd_base.void-gcc --input namd.input --iterations 1 --output namd.out
+
+# SPEC 453.povray: run_base_test_void-gcc.0004
+POVRAY_DIR = os.environ.get(
+    "SPEC2006_POVRAY_DIR",
+    "/m/local1/aidanlevy03/spec2006_install/benchspec/CPU2006/453.povray/run/run_base_test_void-gcc.0004",
+)
+POVRAY_BIN = os.path.join(POVRAY_DIR, "povray_base.void-gcc")
+POVRAY_CMD = [POVRAY_BIN, "SPEC-benchmark-test.ini"]
+# actual command part from speccmds:
+# ../run_base_test_void-gcc.0004/povray_base.void-gcc SPEC-benchmark-test.ini
+
+# SPEC 459.GemsFDTD: run_base_test_void-gcc.0004
+GEMSFDTD_DIR = os.environ.get(
+    "SPEC2006_GEMSFDTD_DIR",
+    "/m/local1/aidanlevy03/spec2006_install/benchspec/CPU2006/459.GemsFDTD/run/run_base_test_void-gcc.0004",
+)
+GEMSFDTD_BIN = os.path.join(GEMSFDTD_DIR, "GemsFDTD_base.void-gcc")
+GEMSFDTD_CMD = [GEMSFDTD_BIN]
+# actual command part from speccmds:
+# ../run_base_test_void-gcc.0004/GemsFDTD_base.void-gcc
+
+# SPEC 465.tonto: run_base_test_void-gcc.0004
+TONTO_DIR = os.environ.get(
+    "SPEC2006_TONTO_DIR",
+    "/m/local1/aidanlevy03/spec2006_install/benchspec/CPU2006/465.tonto/run/run_base_test_void-gcc.0004",
+)
+TONTO_BIN = os.path.join(TONTO_DIR, "tonto_base.void-gcc")
+TONTO_CMD = [TONTO_BIN]
+# actual command part from speccmds:
+# ../run_base_test_void-gcc.0004/tonto_base.void-gcc
+
+# SPEC 482.sphinx3: run_base_test_void-gcc.0004
+SPHINX3_DIR = os.environ.get(
+    "SPEC2006_SPHINX3_DIR",
+    "/m/local1/aidanlevy03/spec2006_install/benchspec/CPU2006/482.sphinx3/run/run_base_test_void-gcc.0004",
+)
+SPHINX3_BIN = os.path.join(SPHINX3_DIR, "sphinx_livepretend_base.void-gcc")
+SPHINX3_CMD = [SPHINX3_BIN, "ctlfile", ".", "args.an4"]
+# actual command part from speccmds:
+# ../run_base_test_void-gcc.0004/sphinx_livepretend_base.void-gcc ctlfile . args.an4
