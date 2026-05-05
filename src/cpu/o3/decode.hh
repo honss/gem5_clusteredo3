@@ -291,6 +291,7 @@ class Decode
     /** Cluster steering policy and params. */
     ClusterSteerPolicy clusterSteerPolicy;
     unsigned clusterSteerGroupSize;
+    unsigned clusterSteerPCBit;
     /** Per-thread instruction count for ModN steering. */
     unsigned steerCount[MaxThreads];
 

@@ -18,11 +18,27 @@ INT CLUSTERED
 python3 queue_gem5_jobs.py \
     --tests libq bzip2 mcf hmmer sjeng omnetpp  \
     --variants none BWifcw \
-    --reg-based yes,no \
+    --reg-based yes \
+    --cluster-steer-group-size 32 \
     --intercluster-delay 3 \
+    --iteration queued_32 \
+    --dry-run
+
+LIBQ delay
+python3 queue_gem5_jobs.py \
+    --tests libq \
+    --variants Wcw \
+    --reg-based yes \
+    --intercluster-delay 1,2,3,4 \
     --iteration queued_runs \
     --dry-run
 
+python3 queue_gem5_jobs.py \
+  --tests libq bzip2 mcf hmmer sjeng omnetpp \
+  --variants none BWifcw \
+  --steer RegBased:32,RoundRobin:1,PCLowBitHash:1 \
+  --intercluster-delay 3 \
+  --iteration queued_runs
 
 FAKE
 ./build/X86/gem5.opt --outdir=runlogs/temp/123 configs/o3_spec_config.py --libq --intercluster-delay 3

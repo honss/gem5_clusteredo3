@@ -14,6 +14,7 @@ def build_job_name(
     intercluster_delay: int,
     include_delay_tag: bool,
     steer: tuple[str, int] | None = None,
+    cluster_steer_pc_bit: int | None = None,
 ) -> str:
     parts = [test]
 
@@ -32,6 +33,8 @@ def build_job_name(
 
     if include_delay_tag:
         parts.append(f"ICD{intercluster_delay}")
+    if cluster_steer_pc_bit is not None:
+        parts.append(f"PCBIT{cluster_steer_pc_bit}")
 
     return "_".join(parts)
 
@@ -58,6 +61,7 @@ def build_command(
     ld_library_path: str | None,
     steer: tuple[str, int] | None = None,
     cluster_steer_group_size: int | None = None,
+    cluster_steer_pc_bit: int | None = None,
 ) -> list[str]:
     cmd = [
         gem5_bin,
@@ -81,6 +85,8 @@ def build_command(
             cmd += ["--cluster-steer-group-size", str(cluster_steer_group_size)]
         if reg_based:
             cmd.append("--reg-based")
+    if cluster_steer_pc_bit is not None:
+        cmd += ["--cluster-steer-pc-bit", str(cluster_steer_pc_bit)]
 
     return cmd
 
@@ -146,6 +152,8 @@ def parse_steer_specs(raw: str | None) -> list[tuple[str, int]] | None:
     Comma-separated Policy:GroupSize, e.g. 'ModN:32,RegBased:4'.
     ModN:N is pure ModN steering; RegBased:N uses reg steering with ModN-style
     fallback in groups of N when no int/float arch reg applies (gem5 cluster_assign).
+    RoundRobin and PCLowBitHash accept a group size for uniform naming/CLI shape,
+    but the current hardware policy ignores it.
     """
     if raw is None or not raw.strip():
         return None
@@ -162,9 +170,10 @@ def parse_steer_specs(raw: str | None) -> list[tuple[str, int]] | None:
             )
         left, right = chunk.split(":", 1)
         pol = left.strip()
-        if pol not in ("ModN", "RegBased"):
+        if pol not in ("ModN", "RegBased", "RoundRobin", "PCLowBitHash"):
             raise ValueError(
-                f"Unknown steer policy {pol!r} in {chunk!r}; use ModN or RegBased"
+                f"Unknown steer policy {pol!r} in {chunk!r}; use "
+                "ModN, RegBased, RoundRobin, or PCLowBitHash"
             )
         try:
             gs = int(right.strip())
@@ -208,6 +217,34 @@ def normalize_intercluster_delays(raw: str) -> list[int]:
         if d not in seen:
             deduped.append(d)
             seen.add(d)
+    return deduped
+
+
+def normalize_cluster_steer_pc_bits(raw: str | None) -> list[int | None]:
+    if raw is None or not raw.strip():
+        return [None]
+    tokens = [tok.strip() for tok in raw.split(",") if tok.strip()]
+    if not tokens:
+        raise ValueError("cluster steer pc-bit list cannot be empty")
+
+    bits: list[int] = []
+    for tok in tokens:
+        try:
+            bit = int(tok)
+        except ValueError as exc:
+            raise ValueError(f"Unsupported cluster steer pc bit: {tok}") from exc
+        if bit < 0:
+            raise ValueError(
+                f"Unsupported cluster steer pc bit: {tok} (must be >= 0)"
+            )
+        bits.append(bit)
+
+    seen: set[int] = set()
+    deduped: list[int | None] = []
+    for b in bits:
+        if b not in seen:
+            deduped.append(b)
+            seen.add(b)
     return deduped
 
 
@@ -256,6 +293,17 @@ def main() -> None:
         help=(
             "Optional: pass --cluster-steer-group-size to the config for all jobs when "
             "not using --steer (e.g. with --reg-based to set fallback/group size)."
+        ),
+    )
+    parser.add_argument(
+        "--cluster-steer-pc-bit",
+        type=str,
+        default=None,
+        help=(
+            "Optional: single value or comma-separated list passed as "
+            "--cluster-steer-pc-bit to o3_spec_config.py "
+            "(used by PCLowBitHash as bit index X in (PC>>X)&1). "
+            "Examples: '5' or '1,2,3,4'."
         ),
     )
     parser.add_argument(
@@ -312,6 +360,7 @@ def main() -> None:
             "Example: --steer ModN:32,RegBased:4 --reg-based no"
         )
     intercluster_delays = normalize_intercluster_delays(args.intercluster_delay)
+    cluster_steer_pc_bits = normalize_cluster_steer_pc_bits(args.cluster_steer_pc_bit)
     ld_path = resolve_ld_library_path(args.ld_library_path)
     include_delay_tag = len(intercluster_delays) > 1 or intercluster_delays[0] != 3
 
@@ -328,31 +377,34 @@ def main() -> None:
                     continue
                 for variant in variants:
                     for intercluster_delay in intercluster_delays:
-                        job_name = build_job_name(
-                            test,
-                            reg_based,
-                            variant,
-                            intercluster_delay,
-                            include_delay_tag,
-                            steer=steer,
-                        )
-                        outdir = Path(args.runlogs_root) / args.iteration / job_name
-                        output_file = outdir / "output"
+                        for cluster_steer_pc_bit in cluster_steer_pc_bits:
+                            job_name = build_job_name(
+                                test,
+                                reg_based,
+                                variant,
+                                intercluster_delay,
+                                include_delay_tag,
+                                steer=steer,
+                                cluster_steer_pc_bit=cluster_steer_pc_bit,
+                            )
+                            outdir = Path(args.runlogs_root) / args.iteration / job_name
+                            output_file = outdir / "output"
 
-                        cmd = build_command(
-                            gem5_bin=args.gem5_bin,
-                            config_script=args.config,
-                            outdir=outdir,
-                            test=test,
-                            variant=variant,
-                            reg_based=reg_based,
-                            intercluster_delay=intercluster_delay,
-                            ld_library_path=ld_path,
-                            steer=steer,
-                            cluster_steer_group_size=args.cluster_steer_group_size,
-                        )
+                            cmd = build_command(
+                                gem5_bin=args.gem5_bin,
+                                config_script=args.config,
+                                outdir=outdir,
+                                test=test,
+                                variant=variant,
+                                reg_based=reg_based,
+                                intercluster_delay=intercluster_delay,
+                                ld_library_path=ld_path,
+                                steer=steer,
+                                cluster_steer_group_size=args.cluster_steer_group_size,
+                                cluster_steer_pc_bit=cluster_steer_pc_bit,
+                            )
 
-                        jobs.append((job_name, outdir, output_file, cmd))
+                            jobs.append((job_name, outdir, output_file, cmd))
 
     print(f"Prepared {len(jobs)} job(s):\n")
 

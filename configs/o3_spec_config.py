@@ -353,6 +353,7 @@ system = System(
             ],
             clusterSteerPolicy="RegBased",
             clusterSteerGroupSize=8,
+            clusterSteerPCBit=2,
             interclusterDelay=3,
         )
     ],
@@ -651,9 +652,12 @@ _parser.add_argument(
 _parser.add_argument(
     "--cluster-steer-policy",
     type=str,
-    choices=["RegBased", "ModN"],
+    choices=["RegBased", "ModN", "RoundRobin", "PCLowBitHash"],
     default="ModN",
-    help="Cluster steering policy (default: ModN)",
+    help=(
+        "Cluster steering policy (default: ModN). "
+        "RoundRobin and PCLowBitHash ignore --cluster-steer-group-size."
+    ),
 )
 _parser.add_argument(
     "--reg-based",
@@ -672,7 +676,17 @@ _parser.add_argument(
     default=8,
     help=(
         "ModN: instructions per cluster before switching. "
-        "RegBased: ModN-style fallback group size when no int/float arch reg applies (default: 8)"
+        "RegBased: ModN-style fallback group size when no int/float arch reg applies "
+        "(default: 8). Ignored by RoundRobin and PCLowBitHash."
+    ),
+)
+_parser.add_argument(
+    "--cluster-steer-pc-bit",
+    type=int,
+    default=2,
+    help=(
+        "PCLowBitHash: PC bit index X used in (PC>>X)&1 (default: 2). "
+        "Ignored by other steering policies."
     ),
 )
 _parser.add_argument(
@@ -694,12 +708,15 @@ _parser.add_argument(
     ),
 )
 _args, _ = _parser.parse_known_args()
+if _args.cluster_steer_pc_bit < 0:
+    raise SystemExit("--cluster-steer-pc-bit must be >= 0")
 
 # Allow steering selection at runtime without editing this file.
 _steer_policy = "RegBased" if _args.reg_based else _args.cluster_steer_policy
 for cpu in system.cpu:
     cpu.clusterSteerPolicy = _steer_policy
     cpu.clusterSteerGroupSize = _args.cluster_steer_group_size
+    cpu.clusterSteerPCBit = _args.cluster_steer_pc_bit
     cpu.interclusterDelay = _args.intercluster_delay
 
 if _args.mini_lbm:

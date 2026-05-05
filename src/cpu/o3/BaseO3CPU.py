@@ -247,11 +247,19 @@ class BaseO3CPU(BaseCPU):
     )
     clusterSteerPolicy = Param.ClusterSteerPolicy(
         "RegBased",
-        "Cluster steering: RegBased (even/odd arch regs) or ModN (groups of X)",
+        (
+            "Cluster steering: RegBased (even/odd arch regs), "
+            "ModN (groups of X), RoundRobin (alternate every instruction), "
+            "or PCLowBitHash ((PC>>clusterSteerPCBit)&1)"
+        ),
     )
     clusterSteerGroupSize = Param.Unsigned(
         4,
         "For ModN policy: number of instructions per cluster before switching",
+    )
+    clusterSteerPCBit = Param.Unsigned(
+        2,
+        "For PCLowBitHash policy: PC bit index used for hashing",
     )
     interclusterDelay = Param.Cycles(
         3,

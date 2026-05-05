@@ -55,5 +55,7 @@ class ClusterSteerPolicy(ScopedEnum):
     """Cluster steering policy for multicluster O3.
     RegBased: steer by arch reg (even->C0, odd->C1); operands in both -> dual.
     ModN: round-robin by groupSize (N instructions to C0, next N to C1, ...). Use clusterSteerGroupSize=N.
+    RoundRobin: alternate clusters every instruction (ignores groupSize).
+    PCLowBitHash: steer by PC bit X, (pc>>X)&1, where X=clusterSteerPCBit.
     """
-    vals = ["RegBased", "ModN"]
+    vals = ["RegBased", "ModN", "RoundRobin", "PCLowBitHash"]

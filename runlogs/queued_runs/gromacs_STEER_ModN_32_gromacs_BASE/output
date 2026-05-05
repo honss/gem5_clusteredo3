@@ -1,0 +1,108 @@
+Global frequency set at 1000000000000 ticks per second
+warn: No dot file generated. Please install pydot to generate the dot file and pdf.
+src/base/statistics.hh:279: warn: One of the stats is a legacy stat. Legacy stat is a stat that does not belong to any statistics::Group. Legacy stat is deprecated.
+src/base/stats/storage.hh:278: warn: Bucket size (4) does not divide range [1:32] into equal-sized buckets. Rounding up.
+src/base/stats/storage.hh:278: warn: Bucket size (4) does not divide range [1:8] into equal-sized buckets. Rounding up.
+src/base/remote_gdb.cc:418: warn: Sockets disabled, not accepting gdb connections
+gem5 Simulator System.  https://www.gem5.org
+gem5 is copyrighted software; use the --copyright option for details.
+
+gem5 version 25.1.0.0
+gem5 compiled Apr 25 2026 14:26:27
+gem5 started May  2 2026 16:15:09
+gem5 executing on aurora, pid 10671
+command line: ./build/X86/gem5.opt --outdir=runlogs/queued_runs/gromacs_STEER_ModN_32_gromacs_BASE configs/o3_spec_config.py --ld-library-path /m/local1/aidanlevy03/gcc-14.2.0/lib64:/opt/local/gcc-6.3.0/lib64:/opt/local/gcc-6.3.0/lib: --gromacs --intercluster-delay 3 --cluster-steer-policy ModN --cluster-steer-group-size 32
+
+info: Standard input is not a terminal, disabling listeners.
+O3 spec config: running /m/local1/aidanlevy03/spec2006_install/benchspec/CPU2006/435.gromacs/run/run_base_test_void-gcc.0004/gromacs_base.void-gcc -silent -deffnm gromacs -nice 0
+src/sim/mem_state.cc:443: info: Increasing stack size by one page.
+src/base/loader/symtab.cc:95: warn: Cannot insert a new symbol table due to name collisions. Adding prefix to each symbol's name can resolve this issue.
+src/base/loader/symtab.cc:95: warn: Cannot insert a new symbol table due to name collisions. Adding prefix to each symbol's name can resolve this issue.
+src/base/loader/symtab.cc:95: warn: Cannot insert a new symbol table due to name collisions. Adding prefix to each symbol's name can resolve this issue.
+src/base/loader/symtab.cc:95: warn: Cannot insert a new symbol table due to name collisions. Adding prefix to each symbol's name can resolve this issue.
+src/base/loader/symtab.cc:95: warn: Cannot insert a new symbol table due to name collisions. Adding prefix to each symbol's name can resolve this issue.
+src/base/loader/symtab.cc:95: warn: Cannot insert a new symbol table due to name collisions. Adding prefix to each symbol's name can resolve this issue.
+src/base/loader/symtab.cc:95: warn: Cannot insert a new symbol table due to name collisions. Adding prefix to each symbol's name can resolve this issue.
+src/base/loader/symtab.cc:95: warn: Cannot insert a new symbol table due to name collisions. Adding prefix to each symbol's name can resolve this issue.
+src/base/loader/symtab.cc:95: warn: Cannot insert a new symbol table due to name collisions. Adding prefix to each symbol's name can resolve this issue.
+src/base/loader/symtab.cc:95: warn: Cannot insert a new symbol table due to name collisions. Adding prefix to each symbol's name can resolve this issue.
+src/base/loader/symtab.cc:95: warn: Cannot insert a new symbol table due to name collisions. Adding prefix to each symbol's name can resolve this issue.
+src/base/loader/symtab.cc:95: warn: Cannot insert a new symbol table due to name collisions. Adding prefix to each symbol's name can resolve this issue.
+src/base/loader/symtab.cc:95: warn: Cannot insert a new symbol table due to name collisions. Adding prefix to each symbol's name can resolve this issue.
+src/base/loader/symtab.cc:95: warn: Cannot insert a new symbol table due to name collisions. Adding prefix to each symbol's name can resolve this issue.
+src/base/loader/symtab.cc:95: warn: Cannot insert a new symbol table due to name collisions. Adding prefix to each symbol's name can resolve this issue.
+src/base/loader/symtab.cc:95: warn: Cannot insert a new symbol table due to name collisions. Adding prefix to each symbol's name can resolve this issue.
+src/sim/syscall_emul.cc:86: warn: ignoring syscall set_robust_list(...)
+src/sim/syscall_emul.cc:86: warn: ignoring syscall rseq(...)
+src/sim/syscall_emul.cc:86: warn: ignoring syscall mprotect(...)
+src/sim/syscall_emul.cc:86: warn: ignoring syscall mprotect(...)
+src/sim/syscall_emul.cc:86: warn: ignoring syscall mprotect(...)
+src/sim/syscall_emul.cc:86: warn: ignoring syscall mprotect(...)
+src/sim/syscall_emul.cc:86: warn: ignoring syscall mprotect(...)
+src/sim/syscall_emul.cc:86: warn: ignoring syscall mprotect(...)
+src/sim/mem_state.cc:443: info: Increasing stack size by one page.
+src/sim/mem_state.cc:443: info: Increasing stack size by one page.
+src/sim/mem_state.cc:443: info: Increasing stack size by one page.
+src/sim/mem_state.cc:443: info: Increasing stack size by one page.
+src/sim/mem_state.cc:443: info: Increasing stack size by one page.
+src/sim/mem_state.cc:443: info: Increasing stack size by one page.
+src/sim/mem_state.cc:443: info: Increasing stack size by one page.
+src/sim/mem_state.cc:443: info: Increasing stack size by one page.
+src/sim/mem_state.cc:443: info: Increasing stack size by one page.
+src/sim/mem_state.cc:443: info: Increasing stack size by one page.
+src/sim/mem_state.cc:443: info: Increasing stack size by one page.
+src/sim/mem_state.cc:443: info: Increasing stack size by one page.
+src/sim/mem_state.cc:443: info: Increasing stack size by one page.
+src/sim/syscall_emul.hh:1427: warn: mremapping to new vaddr 0x7ffff7372000-0x7ffff73b3000, adding 65536
+src/sim/syscall_emul.hh:1446: warn: returning 0x7ffff7372000 as start
+src/sim/syscall_emul.hh:1427: warn: mremapping to new vaddr 0x7ffff7331000-0x7ffff7372000, adding 65536
+src/sim/syscall_emul.hh:1446: warn: returning 0x7ffff7331000 as start
+src/sim/syscall_emul.hh:1427: warn: mremapping to new vaddr 0x7ffff72e0000-0x7ffff7331000, adding 65536
+src/sim/syscall_emul.hh:1446: warn: returning 0x7ffff72e0000 as start
+src/sim/syscall_emul.hh:1427: warn: mremapping to new vaddr 0x7ffff728f000-0x7ffff72e0000, adding 65536
+src/sim/syscall_emul.hh:1446: warn: returning 0x7ffff728f000 as start
+src/sim/syscall_emul.hh:1427: warn: mremapping to new vaddr 0x7ffff721d000-0x7ffff725e000, adding 65536
+src/sim/syscall_emul.hh:1446: warn: returning 0x7ffff721d000 as start
+src/sim/syscall_emul.hh:1427: warn: mremapping to new vaddr 0x7ffff71cc000-0x7ffff721d000, adding 65536
+src/sim/syscall_emul.hh:1446: warn: returning 0x7ffff71cc000 as start
+src/sim/syscall_emul.hh:1427: warn: mremapping to new vaddr 0x7ffff716b000-0x7ffff71cc000, adding 65536
+src/sim/syscall_emul.hh:1446: warn: returning 0x7ffff716b000 as start
+src/sim/syscall_emul.hh:1427: warn: mremapping to new vaddr 0x7ffff70fa000-0x7ffff716b000, adding 65536
+src/sim/syscall_emul.hh:1446: warn: returning 0x7ffff70fa000 as start
+src/sim/syscall_emul.hh:1427: warn: mremapping to new vaddr 0x7ffff7079000-0x7ffff70fa000, adding 65536
+src/sim/syscall_emul.hh:1446: warn: returning 0x7ffff7079000 as start
+src/sim/syscall_emul.hh:1427: warn: mremapping to new vaddr 0x7ffff6fe8000-0x7ffff7079000, adding 65536
+src/sim/syscall_emul.hh:1446: warn: returning 0x7ffff6fe8000 as start
+src/sim/syscall_emul.hh:1427: warn: mremapping to new vaddr 0x7ffff6f47000-0x7ffff6fe8000, adding 65536
+src/sim/syscall_emul.hh:1446: warn: returning 0x7ffff6f47000 as start
+src/sim/syscall_emul.hh:1427: warn: mremapping to new vaddr 0x7ffff6e96000-0x7ffff6f47000, adding 65536
+src/sim/syscall_emul.hh:1446: warn: returning 0x7ffff6e96000 as start
+src/sim/syscall_emul.hh:1427: warn: mremapping to new vaddr 0x7ffff6dd5000-0x7ffff6e96000, adding 65536
+src/sim/syscall_emul.hh:1446: warn: returning 0x7ffff6dd5000 as start
+src/sim/syscall_emul.hh:1427: warn: mremapping to new vaddr 0x7ffff6d04000-0x7ffff6dd5000, adding 65536
+src/sim/syscall_emul.hh:1446: warn: returning 0x7ffff6d04000 as start
+src/sim/syscall_emul.hh:1427: warn: mremapping to new vaddr 0x7ffff6c23000-0x7ffff6d04000, adding 65536
+src/sim/syscall_emul.hh:1446: warn: returning 0x7ffff6c23000 as start
+src/sim/syscall_emul.hh:1427: warn: mremapping to new vaddr 0x7ffff6b32000-0x7ffff6c23000, adding 65536
+src/sim/syscall_emul.hh:1446: warn: returning 0x7ffff6b32000 as start
+src/sim/syscall_emul.hh:1427: warn: mremapping to new vaddr 0x7ffff6a31000-0x7ffff6b32000, adding 65536
+src/sim/syscall_emul.hh:1446: warn: returning 0x7ffff6a31000 as start
+src/sim/syscall_emul.hh:1427: warn: mremapping to new vaddr 0x7ffff6920000-0x7ffff6a31000, adding 65536
+src/sim/syscall_emul.hh:1446: warn: returning 0x7ffff6920000 as start
+src/sim/syscall_emul.hh:1427: warn: mremapping to new vaddr 0x7ffff67ff000-0x7ffff6920000, adding 65536
+src/sim/syscall_emul.hh:1446: warn: returning 0x7ffff67ff000 as start
+src/sim/syscall_emul.hh:1427: warn: mremapping to new vaddr 0x7ffff66ce000-0x7ffff67ff000, adding 65536
+src/sim/syscall_emul.hh:1446: warn: returning 0x7ffff66ce000 as start
+src/sim/syscall_emul.hh:1427: warn: mremapping to new vaddr 0x7ffff658d000-0x7ffff66ce000, adding 65536
+src/sim/syscall_emul.hh:1446: warn: returning 0x7ffff658d000 as start
+src/sim/syscall_emul.hh:1427: warn: mremapping to new vaddr 0x7ffff652c000-0x7ffff658d000, adding 65536
+src/sim/syscall_emul.hh:1446: warn: returning 0x7ffff652c000 as start
+src/sim/syscall_emul.hh:1427: warn: mremapping to new vaddr 0x7ffff63db000-0x7ffff652c000, adding 65536
+src/sim/syscall_emul.hh:1446: warn: returning 0x7ffff63db000 as start
+src/sim/syscall_emul.hh:1427: warn: mremapping to new vaddr 0x7ffff6249000-0x7ffff63aa000, adding 65536
+src/sim/syscall_emul.hh:1446: warn: returning 0x7ffff6249000 as start
+Warning: 1-4 interaction at distance larger than 1
+These are ignored for the rest of the simulation
+turn on -debug for more information
+Wrote pdb files with previous and current coordinates
+Exited @ tick 591371153802 because exiting with last active thread context

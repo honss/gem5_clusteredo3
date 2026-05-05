@@ -25,7 +25,8 @@ def _split_icd_suffix(name: str) -> tuple[str, str]:
 def parse_job_folder(name: str) -> tuple[str, str]:
     """
     Parse (test, row_key) from queue_gem5_jobs.py folder naming for pivoting.
-    row_key groups simTicks rows (e.g. STEER_ModN_32_BASE, REG_BASED_Wcw_ICD2, Wcw_ICD1).
+    row_key groups simTicks rows (e.g. STEER_ModN_32_BASE,
+    STEER_RoundRobin_1_BASE, REG_BASED_Wcw_ICD2, Wcw_ICD1).
     Inter-cluster delay tags (_ICDn) are kept so multiple sweeps do not overwrite the same cell.
     """
     core, icd_tag = _split_icd_suffix(name)
@@ -34,14 +35,11 @@ def parse_job_folder(name: str) -> tuple[str, str]:
         test, _, tail = core.partition("_STEER_")
         toks = tail.split("_")
         if len(toks) >= 4 and toks[1].isdigit():
-            if toks[0] == "ModN":
-                pol_gs = f"ModN_{toks[1]}"
-                rest = toks[2:]
-            elif toks[0] == "RegBased":
-                pol_gs = f"RegBased_{toks[1]}"
-                rest = toks[2:]
-            else:
+            policy = toks[0]
+            if policy not in {"ModN", "RegBased", "RoundRobin", "PCLowBitHash"}:
                 return name, core + icd_tag
+            pol_gs = f"{policy}_{toks[1]}"
+            rest = toks[2:]
             if len(rest) >= 2:
                 test2, var_suffix = rest[0], "_".join(rest[1:])
                 if test2 == test:
@@ -85,27 +83,39 @@ def _icd_sort_tail(row: str) -> tuple[str, int]:
 
 
 def row_key_sort_key(row: str) -> tuple:
-    """Order rows: ModN steers, RegBased steers, REG_BASED, plain variants; then ICD index."""
+    """Order rows: steer rows by policy then group size, then legacy/plain rows."""
     suf_order = {"BASE": 0, "BWifcw": 1, "Wcw": 2}
 
     core, icd_n = _icd_sort_tail(row)
 
-    if core.startswith("STEER_ModN_"):
-        rest = core[len("STEER_ModN_") :]
-        parts = rest.split("_", 1)
-        n = int(parts[0]) if parts and parts[0].isdigit() else 999
-        suf = parts[1] if len(parts) > 1 else ""
-        return (0, -n, suf_order.get(suf, 99), suf, icd_n)
-    if core.startswith("STEER_RegBased_"):
-        rest = core[len("STEER_RegBased_") :]
-        parts = rest.split("_", 1)
-        n = int(parts[0]) if parts and parts[0].isdigit() else 999
-        suf = parts[1] if len(parts) > 1 else ""
-        return (1, n, suf_order.get(suf, 99), suf, icd_n)
+    if core.startswith("STEER_"):
+        rest = core[len("STEER_") :]
+        parts = rest.split("_", 2)
+        if len(parts) >= 2 and parts[1].isdigit():
+            policy = parts[0]
+            n = int(parts[1])
+            suf = parts[2] if len(parts) > 2 else ""
+            policy_order = {
+                "ModN": 0,
+                "RegBased": 1,
+                "RoundRobin": 2,
+                "PCLowBitHash": 3,
+            }
+            # Keep prior convention: larger ModN groups first, others ascending.
+            n_key = -n if policy == "ModN" else n
+            return (
+                0,
+                policy_order.get(policy, 99),
+                n_key,
+                suf_order.get(suf, 99),
+                suf,
+                icd_n,
+            )
+        return (0, 99, 999, suf_order.get(rest, 99), rest, icd_n)
     if core.startswith("REG_BASED_"):
         suf = core[len("REG_BASED_") :]
-        return (2, suf_order.get(suf, 50), suf, icd_n)
-    return (3, suf_order.get(core, 99), core, icd_n)
+        return (1, suf_order.get(suf, 50), suf, icd_n)
+    return (2, suf_order.get(core, 99), core, icd_n)
 
 
 def main() -> None:

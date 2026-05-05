@@ -48,11 +48,17 @@ namespace o3
  *   -> cluster 0, next groupSize -> cluster 1, then 0, 1, ...
  *   steerCountPtr is per-thread and incremented here.
  *
+ * RoundRobin: Alternate cluster 0/1 every instruction; steerCountPtr is
+ *   used as the running index.
+ *
+ * PCLowBitHash: Use (PC >> pcBit) & 1 to pick cluster 0/1.
+ *
  * The result is stored on the instruction via setClusterMask().
  */
 void assignClusterToInst(const DynInstPtr &inst,
                          ClusterSteerPolicy policy,
                          unsigned groupSize,
+                         unsigned pcBit,
                          unsigned *steerCountPtr);
 
 } // namespace o3

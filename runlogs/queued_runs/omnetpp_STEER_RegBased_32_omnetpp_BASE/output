@@ -1,0 +1,110 @@
+Global frequency set at 1000000000000 ticks per second
+warn: No dot file generated. Please install pydot to generate the dot file and pdf.
+src/base/statistics.hh:279: warn: One of the stats is a legacy stat. Legacy stat is a stat that does not belong to any statistics::Group. Legacy stat is deprecated.
+src/base/stats/storage.hh:278: warn: Bucket size (4) does not divide range [1:32] into equal-sized buckets. Rounding up.
+src/base/stats/storage.hh:278: warn: Bucket size (4) does not divide range [1:8] into equal-sized buckets. Rounding up.
+src/base/remote_gdb.cc:418: warn: Sockets disabled, not accepting gdb connections
+gem5 Simulator System.  https://www.gem5.org
+gem5 is copyrighted software; use the --copyright option for details.
+
+gem5 version 25.1.0.0
+gem5 compiled Apr  1 2026 01:07:44
+gem5 started Apr 25 2026 13:59:37
+gem5 executing on aurora, pid 64429
+command line: ./build/X86/gem5.opt --outdir=runlogs/queued_runs/omnetpp_STEER_RegBased_32_omnetpp_BASE configs/o3_spec_config.py --omnetpp --intercluster-delay 3 --cluster-steer-policy RegBased --cluster-steer-group-size 32
+
+info: Standard input is not a terminal, disabling listeners.
+O3 spec config: running /m/local1/aidanlevy03/spec2006_install/benchspec/CPU2006/471.omnetpp/run/run_base_test_void-gcc.0001/omnetpp_base.void-gcc omnetpp.ini
+src/sim/mem_state.cc:443: info: Increasing stack size by one page.
+src/base/loader/symtab.cc:95: warn: Cannot insert a new symbol table due to name collisions. Adding prefix to each symbol's name can resolve this issue.
+src/base/loader/symtab.cc:95: warn: Cannot insert a new symbol table due to name collisions. Adding prefix to each symbol's name can resolve this issue.
+src/base/loader/symtab.cc:95: warn: Cannot insert a new symbol table due to name collisions. Adding prefix to each symbol's name can resolve this issue.
+src/base/loader/symtab.cc:95: warn: Cannot insert a new symbol table due to name collisions. Adding prefix to each symbol's name can resolve this issue.
+src/base/loader/symtab.cc:95: warn: Cannot insert a new symbol table due to name collisions. Adding prefix to each symbol's name can resolve this issue.
+src/base/loader/symtab.cc:95: warn: Cannot insert a new symbol table due to name collisions. Adding prefix to each symbol's name can resolve this issue.
+src/base/loader/symtab.cc:95: warn: Cannot insert a new symbol table due to name collisions. Adding prefix to each symbol's name can resolve this issue.
+src/base/loader/symtab.cc:95: warn: Cannot insert a new symbol table due to name collisions. Adding prefix to each symbol's name can resolve this issue.
+src/sim/syscall_emul.cc:86: warn: ignoring syscall set_robust_list(...)
+src/sim/syscall_emul.cc:86: warn: ignoring syscall rseq(...)
+src/sim/syscall_emul.cc:86: warn: ignoring syscall mprotect(...)
+src/sim/syscall_emul.cc:86: warn: ignoring syscall mprotect(...)
+src/sim/syscall_emul.cc:86: warn: ignoring syscall mprotect(...)
+src/sim/syscall_emul.cc:86: warn: ignoring syscall mprotect(...)
+src/sim/syscall_emul.cc:86: warn: ignoring syscall mprotect(...)
+src/sim/syscall_emul.cc:86: warn: ignoring syscall mprotect(...)
+OMNeT++ Discrete Event Simulation  (C) 1992-2003 Andras Varga
+See the license for distribution terms and warranty disclaimer
+Setting up Cmdenv (command-line user interface)...
+src/sim/mem_state.cc:443: info: Increasing stack size by one page.
+src/sim/mem_state.cc:443: info: Increasing stack size by one page.
+src/sim/mem_state.cc:443: info: Increasing stack size by one page.
+src/sim/mem_state.cc:443: info: Increasing stack size by one page.
+src/sim/mem_state.cc:443: info: Increasing stack size by one page.
+src/sim/mem_state.cc:443: info: Increasing stack size by one page.
+src/sim/mem_state.cc:443: info: Increasing stack size by one page.
+src/sim/mem_state.cc:443: info: Increasing stack size by one page.
+src/sim/mem_state.cc:443: info: Increasing stack size by one page.
+src/sim/mem_state.cc:443: info: Increasing stack size by one page.
+src/sim/mem_state.cc:443: info: Increasing stack size by one page.
+src/sim/mem_state.cc:443: info: Increasing stack size by one page.
+src/sim/mem_state.cc:443: info: Increasing stack size by one page.
+src/sim/mem_state.cc:443: info: Increasing stack size by one page.
+src/sim/mem_state.cc:443: info: Increasing stack size by one page.
+src/sim/mem_state.cc:443: info: Increasing stack size by one page.
+src/sim/mem_state.cc:443: info: Increasing stack size by one page.
+src/sim/mem_state.cc:443: info: Increasing stack size by one page.
+src/sim/mem_state.cc:443: info: Increasing stack size by one page.
+src/sim/mem_state.cc:443: info: Increasing stack size by one page.
+src/sim/mem_state.cc:443: info: Increasing stack size by one page.
+src/sim/mem_state.cc:443: info: Increasing stack size by one page.
+src/sim/mem_state.cc:443: info: Increasing stack size by one page.
+src/sim/mem_state.cc:443: info: Increasing stack size by one page.
+src/sim/mem_state.cc:443: info: Increasing stack size by one page.
+src/sim/mem_state.cc:443: info: Increasing stack size by one page.
+src/sim/mem_state.cc:443: info: Increasing stack size by one page.
+src/sim/mem_state.cc:443: info: Increasing stack size by one page.
+src/sim/mem_state.cc:443: info: Increasing stack size by one page.
+src/sim/mem_state.cc:443: info: Increasing stack size by one page.
+src/sim/mem_state.cc:443: info: Increasing stack size by one page.
+src/sim/syscall_emul.cc:97: warn: ignoring syscall rt_sigaction(...)
+      (further warnings will be suppressed)
+
+Preparing for Run #1...
+Setting up network `twoHosts'...
+Running simulation...
+twoHosts.hostA.srv registering DSAP 241
+twoHosts.hostB.srv registering DSAP 241
+twoHosts.hostA.cli registering DSAP 240
+twoHosts.hostB.cli registering DSAP 240
+** Event #0   T=0.0000000  ( 0.00s)
+     Messages:  created: 20
+** Event #100000   T=14.836799  (14.83s)
+     Messages:  created: 48540
+** Event #200000   T=29.571801  (29.57s)
+     Messages:  created: 97064
+** Event #300000   T=44.401886  (44.40s)
+     Messages:  created: 145570
+** Event #400000   T=59.434241  (59.43s)
+     Messages:  created: 194096
+** Event #500000   T=74.211485 ( 1m 14s)
+     Messages:  created: 242608
+** Event #600000   T=89.306257 ( 1m 29s)
+     Messages:  created: 291116
+** Event #700000   T=103.92283 ( 1m 43s)
+     Messages:  created: 339640
+** Event #800000   T=119.27061 ( 1m 59s)
+     Messages:  created: 388154
+** Event #900000   T=133.81414 ( 2m 13s)
+     Messages:  created: 436666
+** Event #1000000   T=148.38048 ( 2m 28s)
+     Messages:  created: 485196
+** Event #1100000   T=163.10847 ( 2m 43s)
+     Messages:  created: 533702
+** Event #1200000   T=177.83484 ( 2m 57s)
+     Messages:  created: 582219
+<!> Simulation time limit reached -- simulation stopped.
+
+Calling finish() at end of Run #1...
+
+End run of OMNeT++
+Exited @ tick 356953647336 because exiting with last active thread context

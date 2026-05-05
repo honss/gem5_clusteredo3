@@ -94,6 +94,7 @@ Decode::Decode(CPU *_cpu, const BaseO3CPUParams &params)
       numThreads(params.numThreads),
       clusterSteerPolicy(params.clusterSteerPolicy),
       clusterSteerGroupSize(params.clusterSteerGroupSize),
+      clusterSteerPCBit(params.clusterSteerPCBit),
       stats(_cpu)
 {
     if (decodeWidth > MaxWidth)
@@ -699,7 +700,7 @@ Decode::decodeInsts(ThreadID tid)
 
         // Assign instruction to cluster(s) for multicluster O3 (2 clusters).
         assignClusterToInst(inst, clusterSteerPolicy, clusterSteerGroupSize,
-                           &steerCount[tid]);
+                            clusterSteerPCBit, &steerCount[tid]);
 
         // Cluster steering (ClusterSteer = dedicated flag; Decode = fallback)
         DPRINTF(ClusterSteer, "[tid:%i] [sn:%lli] %s -> cluster(s): %s "
