@@ -45,6 +45,7 @@
 #include <queue>
 
 #include "base/statistics.hh"
+#include "cpu/o3/cluster_assign.hh"
 #include "cpu/o3/comm.hh"
 #include "cpu/o3/dyn_inst_ptr.hh"
 #include "cpu/o3/limits.hh"
@@ -292,8 +293,9 @@ class Decode
     ClusterSteerPolicy clusterSteerPolicy;
     unsigned clusterSteerGroupSize;
     unsigned clusterSteerPCBit;
-    /** Per-thread instruction count for ModN steering. */
-    unsigned steerCount[MaxThreads];
+    /** Per-thread cluster-steering state: ModN counter + producer-locality
+     *  hint table (one byte per Int/Float arch reg). */
+    ClusterSteerState steerState[MaxThreads];
 
     /** SeqNum of Squashing Branch Delay Instruction (used for MIPS)*/
     Addr bdelayDoneSeqNum[MaxThreads];

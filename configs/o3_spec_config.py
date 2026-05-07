@@ -652,11 +652,20 @@ _parser.add_argument(
 _parser.add_argument(
     "--cluster-steer-policy",
     type=str,
-    choices=["RegBased", "ModN", "RoundRobin", "PCLowBitHash"],
+    choices=[
+        "RegBased",
+        "ModN",
+        "RoundRobin",
+        "PCLowBitHash",
+        "ProducerLocality",
+    ],
     default="ModN",
     help=(
         "Cluster steering policy (default: ModN). "
-        "RoundRobin and PCLowBitHash ignore --cluster-steer-group-size."
+        "RoundRobin and PCLowBitHash ignore --cluster-steer-group-size. "
+        "ProducerLocality steers consumers toward the cluster that last "
+        "produced their source registers (tiny per-arch-reg hint table); "
+        "ties / no hints fall back to ModN with --cluster-steer-group-size."
     ),
 )
 _parser.add_argument(

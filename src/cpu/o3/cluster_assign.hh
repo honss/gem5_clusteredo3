@@ -29,8 +29,12 @@
 #ifndef __CPU_O3_CLUSTER_ASSIGN_HH__
 #define __CPU_O3_CLUSTER_ASSIGN_HH__
 
-#include "enums/ClusterSteerPolicy.hh"
+#include <array>
+#include <cstdint>
+
 #include "cpu/o3/dyn_inst_ptr.hh"
+#include "cpu/reg_class.hh"
+#include "enums/ClusterSteerPolicy.hh"
 
 namespace gem5
 {
@@ -39,27 +43,72 @@ namespace o3
 {
 
 /**
- * Assign the instruction to one or both clusters (2-cluster policy).
+ * Per-thread state used by the cluster steering logic. Owned by Decode.
  *
- * RegBased: Int/Float arch reg index even -> cluster 0, odd -> cluster 1.
- *   If operands span both clusters, dual-distributed. No operands -> cluster 0.
+ * Holds:
+ *   - modNCount:  running counter used by ModN/RoundRobin and as a fallback
+ *     when no other policy can pick a cluster.
+ *   - intHint / fpHint: per-arch-reg "last producer cluster" hint table used
+ *     by the ProducerLocality policy. One signed byte per Int/Float arch reg
+ *     (-1 = no hint, 0 = cluster 0, 1 = cluster 1). Indexed by reg.index().
+ *     Architectural reg indices >= kProdHintSize are ignored (no hint).
  *
- * ModN: Steer in groups of groupSize instructions. First groupSize
- *   -> cluster 0, next groupSize -> cluster 1, then 0, 1, ...
- *   steerCountPtr is per-thread and incremented here.
+ * This is intentionally a tiny per-arch-reg table (no PC tag, no history),
+ * not a full steering predictor.
+ */
+struct ClusterSteerState
+{
+    /** Max architectural reg index tracked per class.
+     * 128 covers Int+Float on x86, ARM, RV64, etc. Larger indices are
+     * silently treated as "no hint".
+     */
+    static constexpr unsigned kProdHintSize = 128;
+
+    unsigned modNCount = 0;
+    std::array<int8_t, kProdHintSize> intHint;
+    std::array<int8_t, kProdHintSize> fpHint;
+
+    ClusterSteerState() { reset(); }
+
+    /** Clear counters and hint table. */
+    void reset();
+
+    /** Returns -1 if no hint or reg is not Int/Float, else 0/1. */
+    int8_t getProdHint(const RegId &reg) const;
+
+    /** Records that this Int/Float arch reg was produced on cluster `cluster`. */
+    void setProdHint(const RegId &reg, int cluster);
+};
+
+/**
+ * Assign the instruction to one cluster (2-cluster policy).
  *
- * RoundRobin: Alternate cluster 0/1 every instruction; steerCountPtr is
- *   used as the running index.
+ * RegBased: Int/Float arch reg index even -> cluster 0, odd -> cluster 1
+ *   (dest preferred, then sources). Falls back to ModN if neither applies.
  *
- * PCLowBitHash: Use (PC >> pcBit) & 1 to pick cluster 0/1.
+ * ModN: Steer in groups of groupSize instructions. First groupSize -> C0,
+ *   next groupSize -> C1, then 0, 1, ...
+ *
+ * RoundRobin: Alternate cluster 0/1 every instruction (ignores groupSize).
+ *
+ * PCLowBitHash: cluster = (PC >> pcBit) & 1.
+ *
+ * ProducerLocality: For each source Int/Float arch reg, look up which
+ *   cluster most recently produced it and tally votes. Steer to the
+ *   majority cluster. Ties / no hints -> ModN fallback. After steering,
+ *   record the chosen cluster as the producer hint for every dest
+ *   Int/Float arch reg.
  *
  * The result is stored on the instruction via setClusterMask().
+ *
+ * `state` is per-thread and may be null (in which case all hint-based
+ * decisions degrade to ModN/RegBased fallbacks).
  */
 void assignClusterToInst(const DynInstPtr &inst,
                          ClusterSteerPolicy policy,
                          unsigned groupSize,
                          unsigned pcBit,
-                         unsigned *steerCountPtr);
+                         ClusterSteerState *state);
 
 } // namespace o3
 } // namespace gem5

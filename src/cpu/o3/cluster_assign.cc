@@ -39,68 +39,148 @@ namespace o3
 {
 
 void
+ClusterSteerState::reset()
+{
+    modNCount = 0;
+    intHint.fill(-1);
+    fpHint.fill(-1);
+}
+
+int8_t
+ClusterSteerState::getProdHint(const RegId &reg) const
+{
+    unsigned idx = reg.index();
+    if (idx >= kProdHintSize)
+        return -1;
+    RegClassType t = reg.classValue();
+    if (t == IntRegClass)
+        return intHint[idx];
+    if (t == FloatRegClass)
+        return fpHint[idx];
+    return -1;
+}
+
+void
+ClusterSteerState::setProdHint(const RegId &reg, int cluster)
+{
+    unsigned idx = reg.index();
+    if (idx >= kProdHintSize)
+        return;
+    RegClassType t = reg.classValue();
+    int8_t v = static_cast<int8_t>(cluster & 1);
+    if (t == IntRegClass)
+        intHint[idx] = v;
+    else if (t == FloatRegClass)
+        fpHint[idx] = v;
+}
+
+namespace {
+
+/** ModN-style step: advance counter and return cluster index in {0,1}. */
+int
+modNStep(ClusterSteerState *state, unsigned groupSize)
+{
+    if (state == nullptr)
+        return 0;
+    if (groupSize == 0)
+        groupSize = 1;
+    unsigned idx = state->modNCount++;
+    return (idx / groupSize) & 1u;
+}
+
+/** RegBased pick: even/odd of arch reg index for first Int/Float reg.
+ *  Returns true if a cluster was chosen. */
+bool
+regBasedPick(const DynInstPtr &inst, int &cluster)
+{
+    auto try_reg = [&](const RegId &reg) -> bool {
+        RegClassType t = reg.classValue();
+        if (t != IntRegClass && t != FloatRegClass)
+            return false;
+        cluster = reg.index() & 1;
+        return true;
+    };
+
+    for (int i = 0; i < inst->numDestRegs(); i++) {
+        if (try_reg(inst->destRegIdx(i)))
+            return true;
+    }
+    for (int i = 0; i < inst->numSrcRegs(); i++) {
+        if (try_reg(inst->srcRegIdx(i)))
+            return true;
+    }
+    return false;
+}
+
+} // anonymous namespace
+
+void
 assignClusterToInst(const DynInstPtr &inst,
                     ClusterSteerPolicy policy,
                     unsigned groupSize,
-                    unsigned *steerCountPtr)
+                    unsigned pcBit,
+                    ClusterSteerState *state)
 {
-    // In the Michaud et al. style design we target, each instruction is
-    // executed in a single cluster. ModN steering always picks one cluster
-    // by group index; RegBased also chooses a single cluster based on the
-    // registers it touches.
-
     int cluster = 0;
 
-    if (policy == ClusterSteerPolicy::ModN && steerCountPtr != nullptr) {
-        unsigned idx = (*steerCountPtr)++;
-        unsigned group = idx / groupSize;
-        cluster = group % 2;
-    } else {
-        // RegBased: try destination int/float regs first, then sources.
-        auto chooseClusterFromReg = [&cluster](const RegId &reg,
-                                               bool &chosen) {
-            if (chosen)
-                return;
-            RegClassType type = reg.classValue();
-            if (type != IntRegClass && type != FloatRegClass)
-                return;
-            cluster = reg.index() % 2;
-            chosen = true;
-        };
+    switch (policy) {
+      case ClusterSteerPolicy::ModN:
+        cluster = modNStep(state, groupSize);
+        break;
 
-        bool chosen = false;
+      case ClusterSteerPolicy::RoundRobin:
+        cluster = state ? (state->modNCount++ & 1u) : 0;
+        break;
 
-        // Prefer destinations: where the value is written.
-        for (int i = 0; i < inst->numDestRegs(); i++) {
-            chooseClusterFromReg(inst->destRegIdx(i), chosen);
-            if (chosen)
-                break;
-        }
+      case ClusterSteerPolicy::PCLowBitHash: {
+        Addr pc = inst->pcState().instAddr();
+        cluster = static_cast<int>((pc >> pcBit) & 1u);
+        break;
+      }
 
-        // Fall back to sources if no suitable destination.
-        if (!chosen) {
+      case ClusterSteerPolicy::ProducerLocality: {
+        // Tally producer-cluster votes from source Int/Float arch regs.
+        unsigned vote[2] = {0, 0};
+        if (state != nullptr) {
             for (int i = 0; i < inst->numSrcRegs(); i++) {
-                chooseClusterFromReg(inst->srcRegIdx(i), chosen);
-                if (chosen)
-                    break;
+                int8_t h = state->getProdHint(inst->srcRegIdx(i));
+                if (h == 0)
+                    vote[0]++;
+                else if (h == 1)
+                    vote[1]++;
             }
         }
+        if (vote[0] > vote[1]) {
+            cluster = 0;
+        } else if (vote[1] > vote[0]) {
+            cluster = 1;
+        } else {
+            // Tie or no hints. Try RegBased first (cheap, deterministic),
+            // then fall back to ModN so the load stays balanced.
+            if (!regBasedPick(inst, cluster))
+                cluster = modNStep(state, groupSize);
+        }
+        break;
+      }
 
-        // If still nothing (no int/float regs), fall back to ModN-style
-        // steering when possible, otherwise default to cluster 0.
-        if (!chosen) {
-            if (steerCountPtr != nullptr && groupSize != 0) {
-                unsigned idx = (*steerCountPtr)++;
-                unsigned group = idx / groupSize;
-                cluster = group % 2;
-            } else {
-                cluster = 0;
-            }
-        }
+      case ClusterSteerPolicy::RegBased:
+      default:
+        if (!regBasedPick(inst, cluster))
+            cluster = modNStep(state, groupSize);
+        break;
     }
 
     uint8_t mask = static_cast<uint8_t>(1u << cluster);
     inst->setClusterMask(mask);
+
+    // Update producer-locality hints whenever we have steer state, regardless
+    // of policy. The table is tiny (one byte per Int/Float arch reg) and
+    // keeping it warm means switching to ProducerLocality at runtime works
+    // without any priming phase.
+    if (state != nullptr) {
+        for (int i = 0; i < inst->numDestRegs(); i++)
+            state->setProdHint(inst->destRegIdx(i), cluster);
+    }
 
     DPRINTF(ClusterCheck, "steer uop [sn:%llu] PC %s -> cluster %d\n",
             inst->seqNum, inst->pcState(), cluster);

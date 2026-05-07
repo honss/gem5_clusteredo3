@@ -57,5 +57,10 @@ class ClusterSteerPolicy(ScopedEnum):
     ModN: round-robin by groupSize (N instructions to C0, next N to C1, ...). Use clusterSteerGroupSize=N.
     RoundRobin: alternate clusters every instruction (ignores groupSize).
     PCLowBitHash: steer by PC bit X, (pc>>X)&1, where X=clusterSteerPCBit.
+    ProducerLocality: per-arch-reg cluster hint -- steer to cluster that most
+        recently produced this instruction's source operands. Tiny per-reg
+        table (one entry per Int/Float arch reg), not a full predictor.
+        Falls back to ModN-style steering on ties / no hints.
     """
-    vals = ["RegBased", "ModN", "RoundRobin", "PCLowBitHash"]
+    vals = ["RegBased", "ModN", "RoundRobin", "PCLowBitHash",
+            "ProducerLocality"]

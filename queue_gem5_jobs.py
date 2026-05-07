@@ -152,11 +152,22 @@ def parse_steer_specs(raw: str | None) -> list[tuple[str, int]] | None:
     Comma-separated Policy:GroupSize, e.g. 'ModN:32,RegBased:4'.
     ModN:N is pure ModN steering; RegBased:N uses reg steering with ModN-style
     fallback in groups of N when no int/float arch reg applies (gem5 cluster_assign).
+    ProducerLocality:N steers consumers toward the cluster that last produced
+    their sources (tiny per-arch-reg hint table); on ties / no hints, falls
+    back to ModN with group size N.
     RoundRobin and PCLowBitHash accept a group size for uniform naming/CLI shape,
     but the current hardware policy ignores it.
     """
     if raw is None or not raw.strip():
         return None
+
+    valid_policies = (
+        "ModN",
+        "RegBased",
+        "RoundRobin",
+        "PCLowBitHash",
+        "ProducerLocality",
+    )
 
     out: list[tuple[str, int]] = []
     for chunk in raw.split(","):
@@ -166,14 +177,14 @@ def parse_steer_specs(raw: str | None) -> list[tuple[str, int]] | None:
         if ":" not in chunk:
             raise ValueError(
                 f"Invalid --steer fragment {chunk!r}; use Policy:GroupSize "
-                "(e.g. ModN:32,RegBased:4)"
+                "(e.g. ModN:32,RegBased:4,ProducerLocality:8)"
             )
         left, right = chunk.split(":", 1)
         pol = left.strip()
-        if pol not in ("ModN", "RegBased", "RoundRobin", "PCLowBitHash"):
+        if pol not in valid_policies:
             raise ValueError(
-                f"Unknown steer policy {pol!r} in {chunk!r}; use "
-                "ModN, RegBased, RoundRobin, or PCLowBitHash"
+                f"Unknown steer policy {pol!r} in {chunk!r}; use one of "
+                + ", ".join(valid_policies)
             )
         try:
             gs = int(right.strip())

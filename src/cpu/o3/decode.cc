@@ -110,7 +110,7 @@ Decode::Decode(CPU *_cpu, const BaseO3CPUParams &params)
         bdelayDoneSeqNum[tid] = 0;
         squashInst[tid] = nullptr;
         squashAfterDelaySlot[tid] = 0;
-        steerCount[tid] = 0;
+        steerState[tid].reset();
     }
 }
 
@@ -125,7 +125,7 @@ Decode::clearStates(ThreadID tid)
 {
     decodeStatus[tid] = Idle;
     stalls[tid].rename = false;
-    steerCount[tid] = 0;
+    steerState[tid].reset();
 
     // Clear out any of this thread's instructions being sent to rename.
     for (int i = -cpu->decodeQueue.getPast();
@@ -700,7 +700,7 @@ Decode::decodeInsts(ThreadID tid)
 
         // Assign instruction to cluster(s) for multicluster O3 (2 clusters).
         assignClusterToInst(inst, clusterSteerPolicy, clusterSteerGroupSize,
-                            clusterSteerPCBit, &steerCount[tid]);
+                            clusterSteerPCBit, &steerState[tid]);
 
         // Cluster steering (ClusterSteer = dedicated flag; Decode = fallback)
         DPRINTF(ClusterSteer, "[tid:%i] [sn:%lli] %s -> cluster(s): %s "
