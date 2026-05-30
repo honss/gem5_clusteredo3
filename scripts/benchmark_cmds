@@ -34,11 +34,20 @@ python3 queue_gem5_jobs.py \
     --dry-run
 
 python3 queue_gem5_jobs.py \
-  --tests libq bzip2 mcf hmmer sjeng omnetpp \
-  --variants none BWifcw \
-  --steer RegBased:32,RoundRobin:1,PCLowBitHash:1 \
-  --intercluster-delay 3 \
+  --tests libq bzip2 mcf hmmer sjeng omnetpp bwaves gromacs cactusadm tonto sphinx3 lbm \
+  --variants RBWifcw \
+  --steer ModN:32 \
+  --intercluster-delay 1,2 \
   --iteration queued_runs
+
+python3 queue_gem5_jobs.py \
+  --tests libq sjeng omnetpp bwaves \
+  --variants RBWifcw \
+  --steer ModN:32,RegBased:32,PCLowBitHash:1 \
+  --cluster-steer-pc-bit 3 \
+  --intercluster-delay 2 \
+  --iteration queued_runs
+
 
 FAKE
 ./build/X86/gem5.opt --outdir=runlogs/temp/123 configs/o3_spec_config.py --libq --intercluster-delay 3

@@ -1,0 +1,52 @@
+Global frequency set at 1000000000000 ticks per second
+warn: No dot file generated. Please install pydot to generate the dot file and pdf.
+src/base/statistics.hh:279: warn: One of the stats is a legacy stat. Legacy stat is a stat that does not belong to any statistics::Group. Legacy stat is deprecated.
+src/base/stats/storage.hh:278: warn: Bucket size (4) does not divide range [1:32] into equal-sized buckets. Rounding up.
+src/base/stats/storage.hh:278: warn: Bucket size (4) does not divide range [1:8] into equal-sized buckets. Rounding up.
+src/base/remote_gdb.cc:418: warn: Sockets disabled, not accepting gdb connections
+gem5 Simulator System.  https://www.gem5.org
+gem5 is copyrighted software; use the --copyright option for details.
+
+gem5 version 25.1.0.0
+gem5 compiled May  5 2026 17:20:44
+gem5 started May 11 2026 22:54:44
+gem5 executing on aurora, pid 5939
+command line: ./build/X86/gem5.opt --outdir=runlogs/queued_runs/bzip2_STEER_ProducerLocality_8_bzip2_RBWifcw configs/o3_spec_config.py --ld-library-path /m/local1/aidanlevy03/gcc-14.2.0/lib64: --bzip2 --variant RBWifcw --intercluster-delay 3 --cluster-steer-policy ProducerLocality --cluster-steer-group-size 8
+
+info: Standard input is not a terminal, disabling listeners.
+O3 spec config: running /m/local1/aidanlevy03/spec2006_install/benchspec/CPU2006/401.bzip2/run/run_base_test_void-gcc.0001/bzip2_base.void-gcc dryer.jpg 2
+src/sim/mem_state.cc:443: info: Increasing stack size by one page.
+src/base/loader/symtab.cc:95: warn: Cannot insert a new symbol table due to name collisions. Adding prefix to each symbol's name can resolve this issue.
+src/base/loader/symtab.cc:95: warn: Cannot insert a new symbol table due to name collisions. Adding prefix to each symbol's name can resolve this issue.
+src/base/loader/symtab.cc:95: warn: Cannot insert a new symbol table due to name collisions. Adding prefix to each symbol's name can resolve this issue.
+src/base/loader/symtab.cc:95: warn: Cannot insert a new symbol table due to name collisions. Adding prefix to each symbol's name can resolve this issue.
+src/sim/syscall_emul.cc:86: warn: ignoring syscall set_robust_list(...)
+src/sim/syscall_emul.cc:86: warn: ignoring syscall rseq(...)
+src/sim/syscall_emul.cc:86: warn: ignoring syscall mprotect(...)
+src/sim/syscall_emul.cc:86: warn: ignoring syscall mprotect(...)
+src/sim/syscall_emul.cc:86: warn: ignoring syscall mprotect(...)
+spec_init
+Loading Input Data
+Duplicating 278475 bytes
+Duplicating 556950 bytes
+Duplicating 983252 bytes
+Input data 2097152 bytes in length
+Compressing Input Data, level 5
+src/sim/mem_state.cc:443: info: Increasing stack size by one page.
+src/sim/mem_state.cc:443: info: Increasing stack size by one page.
+Compressed data 1434910 bytes in length
+Uncompressing Data
+Uncompressed data 2097152 bytes in length
+Uncompressed data compared correctly
+Compressing Input Data, level 7
+Compressed data 1127895 bytes in length
+Uncompressing Data
+Uncompressed data 2097152 bytes in length
+Uncompressed data compared correctly
+Compressing Input Data, level 9
+Compressed data 1067335 bytes in length
+Uncompressing Data
+Uncompressed data 2097152 bytes in length
+Uncompressed data compared correctly
+Tested 2MB buffer: OK!
+Exited @ tick 4519190960856 because exiting with last active thread context

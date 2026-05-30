@@ -1,0 +1,51 @@
+Global frequency set at 1000000000000 ticks per second
+warn: No dot file generated. Please install pydot to generate the dot file and pdf.
+src/base/statistics.hh:279: warn: One of the stats is a legacy stat. Legacy stat is a stat that does not belong to any statistics::Group. Legacy stat is deprecated.
+src/base/stats/storage.hh:278: warn: Bucket size (4) does not divide range [1:32] into equal-sized buckets. Rounding up.
+src/base/stats/storage.hh:278: warn: Bucket size (4) does not divide range [1:8] into equal-sized buckets. Rounding up.
+src/base/remote_gdb.cc:418: warn: Sockets disabled, not accepting gdb connections
+gem5 Simulator System.  https://www.gem5.org
+gem5 is copyrighted software; use the --copyright option for details.
+
+gem5 version 25.1.0.0
+gem5 compiled May  5 2026 17:20:44
+gem5 started May 19 2026 18:11:24
+gem5 executing on aurora, pid 40950
+command line: ./build/X86/gem5.opt --outdir=runlogs/queued_runs/lbm_STEER_ProducerLocality_8_lbm_RBWifcw_ICD4 configs/o3_spec_config.py --lbm --variant RBWifcw --intercluster-delay 4 --cluster-steer-policy ProducerLocality --cluster-steer-group-size 8
+
+info: Standard input is not a terminal, disabling listeners.
+O3 spec config: running /m/local1/aidanlevy03/spec2006_install/benchspec/CPU2006/470.lbm/run/run_base_test_void-gcc.0001/lbm_base.void-gcc 20 reference.dat 0 1 100_100_130_cf_a.of
+src/sim/mem_state.cc:443: info: Increasing stack size by one page.
+src/base/loader/symtab.cc:95: warn: Cannot insert a new symbol table due to name collisions. Adding prefix to each symbol's name can resolve this issue.
+src/base/loader/symtab.cc:95: warn: Cannot insert a new symbol table due to name collisions. Adding prefix to each symbol's name can resolve this issue.
+src/base/loader/symtab.cc:95: warn: Cannot insert a new symbol table due to name collisions. Adding prefix to each symbol's name can resolve this issue.
+src/base/loader/symtab.cc:95: warn: Cannot insert a new symbol table due to name collisions. Adding prefix to each symbol's name can resolve this issue.
+src/base/loader/symtab.cc:95: warn: Cannot insert a new symbol table due to name collisions. Adding prefix to each symbol's name can resolve this issue.
+src/base/loader/symtab.cc:95: warn: Cannot insert a new symbol table due to name collisions. Adding prefix to each symbol's name can resolve this issue.
+src/base/loader/symtab.cc:95: warn: Cannot insert a new symbol table due to name collisions. Adding prefix to each symbol's name can resolve this issue.
+src/base/loader/symtab.cc:95: warn: Cannot insert a new symbol table due to name collisions. Adding prefix to each symbol's name can resolve this issue.
+src/sim/syscall_emul.cc:86: warn: ignoring syscall set_robust_list(...)
+src/sim/syscall_emul.cc:86: warn: ignoring syscall rseq(...)
+src/sim/syscall_emul.cc:86: warn: ignoring syscall mprotect(...)
+src/sim/syscall_emul.cc:86: warn: ignoring syscall mprotect(...)
+src/sim/syscall_emul.cc:86: warn: ignoring syscall mprotect(...)
+src/sim/syscall_emul.cc:86: warn: ignoring syscall mprotect(...)
+MAIN_printInfo:
+	grid size      : 100 x 100 x 130 = 1.30 * 10^6 Cells
+	nTimeSteps     : 20
+	result file    : reference.dat
+	action         : nothing
+	simulation type: channel flow
+	obstacle file  : 100_100_130_cf_a.of
+
+LBM_showGridStatistics:
+	nObstacleCells:  498440 nAccelCells:       0 nFluidCells:  801560
+	minRho:   1.0000 maxRho:   1.0000 mass: 1.300000e+06
+	minU: 0.000000e+00 maxU: 0.000000e+00
+
+LBM_showGridStatistics:
+	nObstacleCells:  498440 nAccelCells:       0 nFluidCells:  801560
+	minRho:   1.0000 maxRho:   1.0431 mass: 1.300963e+06
+	minU: 0.000000e+00 maxU: 1.272361e-02
+
+Exited @ tick 2755357747142 because exiting with last active thread context

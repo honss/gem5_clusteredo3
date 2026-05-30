@@ -45,3 +45,4 @@ src/sim/syscall_emul.cc:97: warn: ignoring syscall rt_sigaction(...)
 src/sim/syscall_emul.cc:97: warn: ignoring syscall rt_sigprocmask(...)
       (further warnings will be suppressed)
 src/sim/mem_state.cc:443: info: Increasing stack size by one page.
+Exited @ tick 3864665609376 because exiting with last active thread context

@@ -1,0 +1,20 @@
+Global frequency set at 1000000000000 ticks per second
+warn: No dot file generated. Please install pydot to generate the dot file and pdf.
+src/base/statistics.hh:279: warn: One of the stats is a legacy stat. Legacy stat is a stat that does not belong to any statistics::Group. Legacy stat is deprecated.
+src/base/stats/storage.hh:278: warn: Bucket size (4) does not divide range [1:32] into equal-sized buckets. Rounding up.
+src/base/stats/storage.hh:278: warn: Bucket size (4) does not divide range [1:8] into equal-sized buckets. Rounding up.
+src/base/remote_gdb.cc:418: warn: Sockets disabled, not accepting gdb connections
+gem5 Simulator System.  https://www.gem5.org
+gem5 is copyrighted software; use the --copyright option for details.
+
+gem5 version 25.1.0.0
+gem5 compiled May  5 2026 17:20:44
+gem5 started May 19 2026 18:11:24
+gem5 executing on aurora, pid 40942
+command line: ./build/X86/gem5.opt --outdir=runlogs/queued_runs/gromacs_STEER_ProducerLocality_8_gromacs_RBWifcw_ICD4 configs/o3_spec_config.py --gromacs --variant RBWifcw --intercluster-delay 4 --cluster-steer-policy ProducerLocality --cluster-steer-group-size 8
+
+info: Standard input is not a terminal, disabling listeners.
+O3 spec config: running /m/local1/aidanlevy03/spec2006_install/benchspec/CPU2006/435.gromacs/run/run_base_test_void-gcc.0004/gromacs_base.void-gcc -silent -deffnm gromacs -nice 0
+src/sim/mem_state.cc:443: info: Increasing stack size by one page.
+/m/local1/aidanlevy03/spec2006_install/benchspec/CPU2006/435.gromacs/run/run_base_test_void-gcc.0004/gromacs_base.void-gcc: error while loading shared libraries: libgfortran.so.5: cannot open shared object file: No such file or directory
+Exited @ tick 17849832 because exiting with last active thread context

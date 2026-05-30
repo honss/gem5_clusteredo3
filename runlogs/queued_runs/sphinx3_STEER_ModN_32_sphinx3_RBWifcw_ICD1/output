@@ -1,0 +1,121 @@
+Global frequency set at 1000000000000 ticks per second
+warn: No dot file generated. Please install pydot to generate the dot file and pdf.
+src/base/statistics.hh:279: warn: One of the stats is a legacy stat. Legacy stat is a stat that does not belong to any statistics::Group. Legacy stat is deprecated.
+src/base/stats/storage.hh:278: warn: Bucket size (4) does not divide range [1:32] into equal-sized buckets. Rounding up.
+src/base/stats/storage.hh:278: warn: Bucket size (4) does not divide range [1:8] into equal-sized buckets. Rounding up.
+src/base/remote_gdb.cc:418: warn: Sockets disabled, not accepting gdb connections
+gem5 Simulator System.  https://www.gem5.org
+gem5 is copyrighted software; use the --copyright option for details.
+
+gem5 version 25.1.0.0
+gem5 compiled May  5 2026 17:20:44
+gem5 started May 29 2026 15:10:54
+gem5 executing on aurora, pid 44901
+command line: ./build/X86/gem5.opt --outdir=runlogs/queued_runs/sphinx3_STEER_ModN_32_sphinx3_RBWifcw_ICD1 configs/o3_spec_config.py --ld-library-path /m/local1/aidanlevy03/gcc-14.2.0/lib64: --sphinx3 --variant RBWifcw --intercluster-delay 1 --cluster-steer-policy ModN --cluster-steer-group-size 32
+
+info: Standard input is not a terminal, disabling listeners.
+O3 spec config: running /m/local1/aidanlevy03/spec2006_install/benchspec/CPU2006/482.sphinx3/run/run_base_test_void-gcc.0004/sphinx_livepretend_base.void-gcc ctlfile . args.an4
+src/sim/mem_state.cc:443: info: Increasing stack size by one page.
+src/base/loader/symtab.cc:95: warn: Cannot insert a new symbol table due to name collisions. Adding prefix to each symbol's name can resolve this issue.
+src/base/loader/symtab.cc:95: warn: Cannot insert a new symbol table due to name collisions. Adding prefix to each symbol's name can resolve this issue.
+src/base/loader/symtab.cc:95: warn: Cannot insert a new symbol table due to name collisions. Adding prefix to each symbol's name can resolve this issue.
+src/base/loader/symtab.cc:95: warn: Cannot insert a new symbol table due to name collisions. Adding prefix to each symbol's name can resolve this issue.
+src/base/loader/symtab.cc:95: warn: Cannot insert a new symbol table due to name collisions. Adding prefix to each symbol's name can resolve this issue.
+src/base/loader/symtab.cc:95: warn: Cannot insert a new symbol table due to name collisions. Adding prefix to each symbol's name can resolve this issue.
+src/base/loader/symtab.cc:95: warn: Cannot insert a new symbol table due to name collisions. Adding prefix to each symbol's name can resolve this issue.
+src/base/loader/symtab.cc:95: warn: Cannot insert a new symbol table due to name collisions. Adding prefix to each symbol's name can resolve this issue.
+src/sim/syscall_emul.cc:86: warn: ignoring syscall set_robust_list(...)
+src/sim/syscall_emul.cc:86: warn: ignoring syscall rseq(...)
+src/sim/syscall_emul.cc:86: warn: ignoring syscall mprotect(...)
+src/sim/syscall_emul.cc:86: warn: ignoring syscall mprotect(...)
+src/sim/syscall_emul.cc:86: warn: ignoring syscall mprotect(...)
+src/sim/syscall_emul.cc:86: warn: ignoring syscall mprotect(...)
+src/sim/mem_state.cc:443: info: Increasing stack size by one page.
+src/sim/mem_state.cc:443: info: Increasing stack size by one page.
+src/sim/mem_state.cc:443: info: Increasing stack size by one page.
+src/sim/mem_state.cc:443: info: Increasing stack size by one page.
+src/sim/mem_state.cc:443: info: Increasing stack size by one page.
+src/sim/mem_state.cc:443: info: Increasing stack size by one page.
+src/sim/mem_state.cc:443: info: Increasing stack size by one page.
+src/sim/mem_state.cc:443: info: Increasing stack size by one page.
+src/sim/mem_state.cc:443: info: Increasing stack size by one page.
+src/sim/mem_state.cc:443: info: Increasing stack size by one page.
+src/sim/mem_state.cc:443: info: Increasing stack size by one page.
+src/sim/mem_state.cc:443: info: Increasing stack size by one page.
+src/sim/mem_state.cc:443: info: Increasing stack size by one page.
+src/sim/mem_state.cc:443: info: Increasing stack size by one page.
+src/sim/mem_state.cc:443: info: Increasing stack size by one page.
+src/sim/mem_state.cc:443: info: Increasing stack size by one page.
+src/sim/mem_state.cc:443: info: Increasing stack size by one page.
+src/sim/mem_state.cc:443: info: Increasing stack size by one page.
+src/sim/mem_state.cc:443: info: Increasing stack size by one page.
+src/sim/mem_state.cc:443: info: Increasing stack size by one page.
+src/sim/mem_state.cc:443: info: Increasing stack size by one page.
+src/sim/mem_state.cc:443: info: Increasing stack size by one page.
+src/sim/mem_state.cc:443: info: Increasing stack size by one page.
+src/sim/mem_state.cc:443: info: Increasing stack size by one page.
+src/sim/mem_state.cc:443: info: Increasing stack size by one page.
+src/sim/mem_state.cc:443: info: Increasing stack size by one page.
+src/sim/mem_state.cc:443: info: Increasing stack size by one page.
+src/sim/mem_state.cc:443: info: Increasing stack size by one page.
+src/sim/mem_state.cc:443: info: Increasing stack size by one page.
+src/sim/mem_state.cc:443: info: Increasing stack size by one page.
+src/sim/mem_state.cc:443: info: Increasing stack size by one page.
+src/sim/mem_state.cc:443: info: Increasing stack size by one page.
+src/sim/mem_state.cc:443: info: Increasing stack size by one page.
+src/sim/mem_state.cc:443: info: Increasing stack size by one page.
+src/sim/mem_state.cc:443: info: Increasing stack size by one page.
+src/sim/mem_state.cc:443: info: Increasing stack size by one page.
+src/sim/mem_state.cc:443: info: Increasing stack size by one page.
+src/sim/mem_state.cc:443: info: Increasing stack size by one page.
+src/sim/mem_state.cc:443: info: Increasing stack size by one page.
+src/sim/mem_state.cc:443: info: Increasing stack size by one page.
+src/sim/mem_state.cc:443: info: Increasing stack size by one page.
+src/sim/mem_state.cc:443: info: Increasing stack size by one page.
+src/sim/mem_state.cc:443: info: Increasing stack size by one page.
+src/sim/mem_state.cc:443: info: Increasing stack size by one page.
+src/sim/mem_state.cc:443: info: Increasing stack size by one page.
+src/sim/mem_state.cc:443: info: Increasing stack size by one page.
+src/sim/mem_state.cc:443: info: Increasing stack size by one page.
+src/sim/mem_state.cc:443: info: Increasing stack size by one page.
+src/sim/mem_state.cc:443: info: Increasing stack size by one page.
+INFO: spec_main_live_pretend.c(120): Processing 1 beamsets
+INFO: cmd_ln.c(276): Parsing command line:
+src/sim/syscall_emul.hh:2280: warn: prlimit: ignoring new rlimit
+INFO: kbcore.c(95): Initializing core models:
+INFO: logs3.c(99): Initializing logbase: 1.000300e+00 (add table: 1)
+INFO: logs3.c(161): Log-Add table size = 29350
+src/sim/mem_state.cc:443: info: Increasing stack size by one page.
+src/sim/mem_state.cc:443: info: Increasing stack size by one page.
+src/sim/mem_state.cc:443: info: Increasing stack size by one page.
+INFO: feat.c(642): Initializing feature stream to type: '1s_c_d_dd', CMN='current', VARNORM='no', AGC='none'
+INFO: mdef.c(594): Reading model definition: model/hmm/hub4/hub4opensrc.6000.mdef
+INFO: mdef.c(771): 48 CI-phone, 133500 CD-phone, 3 emitstate/phone, 144 CI-sen, 6144 Sen, 32639 Sen-Seq
+INFO: dict.c(358): Reading main dictionary: model/lm/an4/an4.dict
+src/sim/mem_state.cc:443: info: Increasing stack size by one page.
+src/sim/mem_state.cc:443: info: Increasing stack size by one page.
+src/sim/mem_state.cc:443: info: Increasing stack size by one page.
+INFO: dict.c(361): 130 words read
+INFO: dict.c(366): Reading filler dictionary: model/lm/an4/filler.dict
+INFO: dict.c(369): 3 words read
+INFO: lm.c(739): LM read('model/lm/an4/an4.ug.lm.DMP', lw= 9.50, wip= -1188, uw= 0.70)
+INFO: lm.c(553):      107 ug
+INFO: lm.c(583):        1 bigrams [on disk]
+INFO: lm.c(613):        2 bigram prob entries
+INFO: lm.c(696):      107 word strings
+INFO: wid.c(178): 6 LM words not in dictionary; ignored
+INFO: cont_mgau.c(96): Reading mixture gaussian file 'model/hmm/hub4/means'
+src/sim/mem_state.cc:443: info: Increasing stack size by one page.
+src/sim/mem_state.cc:443: info: Increasing stack size by one page.
+src/sim/mem_state.cc:443: info: Increasing stack size by one page.
+INFO: cont_mgau.c(248): 6144 mixture Gaussians, 8 components, 1 streams, veclen 39
+INFO: cont_mgau.c(96): Reading mixture gaussian file 'model/hmm/hub4/variances'
+INFO: cont_mgau.c(248): 6144 mixture Gaussians, 8 components, 1 streams, veclen 39
+INFO: cont_mgau.c(269): Reading mixture weights file 'model/hmm/hub4/mixture_weights'
+INFO: cont_mgau.c(362): Read 6144 x 8 mixture weights
+INFO: cont_mgau.c(378): Removing uninitialized Gaussian densities
+ 6 7 8
+INFO: cont_mgau.c(408): 24 densities removed (3 mixtures removed entirely)
+INFO: cont_mgau.c(416): Applying variance floor
+INFO: cont_mgau.c(428): 0 variance values floored
+INFO: cont_mgau.c(474): Precomputing Mahalanobis distance invariants

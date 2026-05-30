@@ -43,3 +43,9 @@ random seed:              0
 histogram(s) saved to:    [not saved]
 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
+HMM    : Bombesin
+mu     :    -5.959400
+lambda :     0.576502
+max    :     7.707000
+//
+Exited @ tick 3095705704234 because exiting with last active thread context

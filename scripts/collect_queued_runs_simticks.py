@@ -36,8 +36,6 @@ def parse_job_folder(name: str) -> tuple[str, str]:
         toks = tail.split("_")
         if len(toks) >= 4 and toks[1].isdigit():
             policy = toks[0]
-            if policy not in {"ModN", "RegBased", "RoundRobin", "PCLowBitHash"}:
-                return name, core + icd_tag
             pol_gs = f"{policy}_{toks[1]}"
             rest = toks[2:]
             if len(rest) >= 2:
@@ -99,7 +97,8 @@ def row_key_sort_key(row: str) -> tuple:
                 "ModN": 0,
                 "RegBased": 1,
                 "RoundRobin": 2,
-                "PCLowBitHash": 3,
+                "ProducerLocality": 3,
+                "PCLowBitHash": 4,
             }
             # Keep prior convention: larger ModN groups first, others ascending.
             n_key = -n if policy == "ModN" else n

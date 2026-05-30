@@ -189,3 +189,60 @@ src/sim/mem_state.cc:443: info: Increasing stack size by one page.
 src/sim/mem_state.cc:443: info: Increasing stack size by one page.
 src/sim/mem_state.cc:443: info: Increasing stack size by one page.
 10  0.43   2222565 d6 Qf3 O-O Qh5 Kh2 Qg6 Qc4 a5 Qd5 Rd8 
+10  0.43   2481142 d6 Qf3 O-O Qh5 Kh2 Qg6 Qc4 a5 Qd5 Rd8 
+
+  +----+----+----+----+----+----+----+----+
+8 |    | *K |    | *R |    |    |    | *R |
+  +----+----+----+----+----+----+----+----+
+7 | *P | *P |    |    | *Q | *P | *P |    |
+  +----+----+----+----+----+----+----+----+
+6 |    |    |    | *B |    | *N |    | *P |
+  +----+----+----+----+----+----+----+----+
+5 |    |    |    | *P |  N |  Q |    |    |
+  +----+----+----+----+----+----+----+----+
+4 |    |    | *P |  P |    |  P |    |    |
+  +----+----+----+----+----+----+----+----+
+3 |    |    |  N |    |  P |    |    |    |
+  +----+----+----+----+----+----+----+----+
+2 |  P |  P |    |    |    |    |  P |  P |
+  +----+----+----+----+----+----+----+----+
+1 |    |  K |    |  R |  R |    |    |    |
+  +----+----+----+----+----+----+----+----+
+
+     a    b    c    d    e    f    g    h
+
+EPD: 1k1r3r/pp2qpp1/3b1n1p/3pNQ2/2pP1P2/2N1P3/PP4PP/1K1RR3 b - - bm Bb4; id "LCT2-POS-02";
+
+Searching to 11 ply
+Middlegame phase.
+Time for move : 1000000
+ 2 -0.39       361 Ka8 e4 
+ 2 -0.38       476 Bb4 !
+ 2 -0.29       956 Bb4 Qc2 
+ 3  0.00      1348 Bb4 Qc2 Ka8 
+ 3  0.00      1600 Bb4 Qc2 Ka8 
+ 4  0.02      3394 Bb4 Qc2 Ka8 g4 
+ 4  0.02      4026 Bb4 Qc2 Ka8 g4 
+ 5  0.12     11880 Bb4 Qc2 Ka8 g4 Rhe8 
+ 5  0.12     14615 Bb4 Qc2 Ka8 g4 Rhe8 
+ 6  0.07     25013 Bb4 Qc2 Ka8 g4 Qe6 h3 
+ 6  0.07     30237 Bb4 Qc2 Ka8 g4 Qe6 h3 
+ 7  0.16     77597 Bb4 Qc2 Ka8 h3 Rhe8 g3 Qc7 
+ 7  0.16     81580 Bb4 Qc2 Ka8 h3 Rhe8 g3 Qc7 
+ 8  0.12    149727 Bb4 Qc2 Ka8 g4 h5 g5 Ng4 h4 Nxe5 dxe5 
+ 8  0.12    169056 Bb4 Qc2 Ka8 g4 h5 g5 Ng4 h4 Nxe5 dxe5 
+ 9  0.12    363431 Bb4 Qc2 Ka8 g4 h5 g5 Ng4 h4 Nxe5 
+ 9  0.12    381811 Bb4 Qc2 Ka8 g4 h5 g5 Ng4 h4 Nxe5 
+10  0.12    677790 Bb4 Qc2 Ka8 g4 h5 g5 Ng4 h4 Nxe5 dxe5 
+src/sim/mem_state.cc:443: info: Increasing stack size by one page.
+src/sim/mem_state.cc:443: info: Increasing stack size by one page.
+src/sim/mem_state.cc:443: info: Increasing stack size by one page.
+src/sim/mem_state.cc:443: info: Increasing stack size by one page.
+10  0.12    799981 Bb4 Qc2 Ka8 g4 h5 g5 Ng4 h4 Nxe5 dxe5 
+src/sim/mem_state.cc:443: info: Increasing stack size by one page.
+src/sim/mem_state.cc:443: info: Increasing stack size by one page.
+src/sim/mem_state.cc:443: info: Increasing stack size by one page.
+src/sim/mem_state.cc:443: info: Increasing stack size by one page.
+11  0.13   1863182 Bb4 Qc2 Ka8 g4 h5 g5 Ng4 g6 Bxc3 Qxc3 fxg6 Nxg6 
+11  0.13   1939268 Bb4 Qc2 Ka8 g4 h5 g5 Ng4 g6 Bxc3 Qxc3 fxg6 Nxg6 
+Exited @ tick 3417936263170 because exiting with last active thread context
